@@ -216,14 +216,9 @@ Once configured, interact with your codebase using natural language:
 codebase-manager-mcp/
 ├── server.py                 # Main MCP server
 ├── setup.py                  # Auto-configuration script
-├── codebase-server.bat       # Windows wrapper
-├── pyproject.toml           # UV project configuration
 ├── requirements.txt         # Pip dependencies
 ├── README.md               # This file
 ├── LICENSE                 # MIT License
-└── examples/
-    ├── claude_config.json  # Example Claude config
-    └── vscode_config.json  # Example VS Code config
 ```
 
 ## 🔧 Advanced Configuration
