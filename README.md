@@ -339,8 +339,8 @@ We welcome contributions! Here's how to get started:
 
 ```bash
 # Clone your fork
-git clone https://github.com/yourusername/codebase-manager-mcp.git
-cd codebase-manager-mcp
+git clone https://github.com/danyQe/codebase-mcp.git
+cd codebase-mcp
 
 # Install development dependencies
 uv add --dev pytest black flake8 mypy
@@ -388,6 +388,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 *Built with ❤️ for the AI development community*
 
-[Report Bug](https://github.com/yourusername/codebase-manager-mcp/issues) • [Request Feature](https://github.com/yourusername/codebase-manager-mcp/issues) • [Join Community](https://discord.gg/your-invite)
+[Report Bug](https://github.com/danyQe/codebase-mcp/issues) • [Request Feature]([https://github.com/yourusername/codebase-manager-mcp](https://github.com/danyQe/codebase-mcp)/issues) )
 
 </div>
