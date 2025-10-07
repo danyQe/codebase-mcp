@@ -11,7 +11,7 @@ Open Source**
 
 **Codebase MCP** is an open-source AI-powered development assistant that connects Claude Desktop (or any MCP-compatible LLM) to your codebase through the Model Context Protocol. Stop paying for separate coding assistants - if you already have a Claude subscription, that's all you need.
 
-📖 **[Read Full Documentation](https://danyqe.github.io/codebase-mcp/)** | 🏗️ **[Architecture](./architecture.puml)** | 🤝 **[Contributing](./CONTRIBUTING.md)**
+📖 **[Read Full Documentation](https://danyqe.github.io/codebase-mcp/)** | 🏗️ **[Architecture](.docs/architecture.png)** | 🤝 **[Contributing](./CONTRIBUTING.md)**
 
 ---
 
