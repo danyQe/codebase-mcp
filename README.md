@@ -177,8 +177,8 @@ python main.py /path/to/your/project
 ```
 
 **Privacy Note:** All processing is local except the edit tool, which uses Google's free Gemini API for AI-assisted code editing. Only the edited file is sent to Gemini - no project context or history.
-
-**[View Detailed Architecture Diagram](./architecture.puml)**
+##Architecture Diagram
+![View Detailed Architecture Diagram](./docs/architecture.png)
 
 ---
 
