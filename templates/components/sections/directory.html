@@ -1,0 +1,202 @@
+<!-- Directory Browser Section -->
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="bg-gradient-to-r from-yellow-500 to-amber-600 rounded-lg shadow-lg p-6 text-white">
+        <h2 class="text-2xl font-bold flex items-center">
+            <i class="fas fa-folder-tree mr-3"></i>
+            Directory Browser
+        </h2>
+        <p class="text-yellow-100 mt-1">Browse and explore directory structure with metadata</p>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <!-- Browser Controls -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-sliders-h text-blue-500 mr-2"></i>
+                    Browse Options
+                </h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Directory Path</label>
+                    <input type="text" id="dirPath" value="." placeholder="." 
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                    <p class="text-xs text-gray-500 mt-1">Use . for current, or enter relative path</p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Max Depth</label>
+                    <input type="number" id="dirMaxDepth" value="3" min="1" max="10"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                </div>
+                
+                <div class="space-y-2">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="includeHidden" class="rounded">
+                        <span class="text-sm text-gray-700">Show Hidden Files</span>
+                    </label>
+                    
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="showMetadata" checked class="rounded">
+                        <span class="text-sm text-gray-700">Show File Metadata</span>
+                    </label>
+                    
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="filesOnly" class="rounded">
+                        <span class="text-sm text-gray-700">Files Only</span>
+                    </label>
+                </div>
+                
+                <button onclick="browseDirectory()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-md font-medium shadow-md">
+                    <i class="fas fa-folder-open mr-2"></i> Browse Directory
+                </button>
+                
+                <button onclick="showDirectoryTree()" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-md font-medium shadow-md">
+                    <i class="fas fa-sitemap mr-2"></i> Show Tree View
+                </button>
+            </div>
+        </div>
+
+        <!-- Directory Listing -->
+        <div class="xl:col-span-2 bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-list text-gray-700 mr-2"></i>
+                    Directory Contents
+                </h3>
+                <div id="dirSummary" class="text-sm text-gray-600">
+                    <!-- Summary populated here -->
+                </div>
+            </div>
+            <div id="directoryListing" class="p-6 bg-gray-50 font-mono text-sm overflow-auto max-h-[600px]">
+                <div class="text-center py-12 text-gray-500">
+                    <i class="fas fa-folder text-4xl mb-3"></i>
+                    <p>Click "Browse Directory" to view contents</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showLoading(message = 'Loading...') {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        overlay.querySelector('span').textContent = message;
+        overlay.classList.remove('hidden');
+    }
+}
+
+// Directory Browser Functions
+async function browseDirectory() {
+    const dirPath = document.getElementById('dirPath').value || '.';
+    const maxDepth = parseInt(document.getElementById('dirMaxDepth').value) || 3;
+    
+    const options = {
+        maxDepth,
+        includeHidden: document.getElementById('includeHidden').checked,
+        showMetadata: document.getElementById('showMetadata').checked,
+        filesOnly: document.getElementById('filesOnly').checked
+    };
+    
+    showLoading('Loading directory...');
+    const result = await apiRoutes.directory.list(dirPath, options);
+    hideLoading();
+    
+    if (result.success && result.data.result) {
+        displayDirectoryListing(result.data.result);
+        notifications.success('Directory loaded');
+    }
+}
+
+async function showDirectoryTree() {
+    const dirPath = document.getElementById('dirPath').value || '.';
+    const maxDepth = parseInt(document.getElementById('dirMaxDepth').value) || 3;
+    
+    showLoading('Generating tree view...');
+    const result = await apiRoutes.directory.tree(dirPath, maxDepth);
+    hideLoading();
+    
+    if (result.success && result.data.result) {
+        document.getElementById('projectDisplayTitle').textContent = 'Directory Tree View';
+        
+        const tree = result.data.result.tree || 'No tree data';
+        const summary = result.data.result.summary || {};
+        
+        document.getElementById('dirSummary').textContent = 
+            `${summary.total_files || 0} files, ${summary.total_directories || 0} dirs`;
+        
+        document.getElementById('directoryListing').innerHTML = `
+            <pre class="text-xs">${tree}</pre>
+        `;
+        
+        notifications.success('Tree view generated');
+    }
+}
+
+function displayDirectoryListing(data) {
+    const items = data.items || [];
+    const summary = data.summary || {};
+    
+    // Update summary
+    document.getElementById('dirSummary').textContent = 
+        `${summary.total_files || 0} files, ${summary.total_directories || 0} directories`;
+    
+    if (items.length === 0) {
+        document.getElementById('directoryListing').innerHTML = `
+            <div class="text-center py-12 text-gray-500">
+                <i class="fas fa-inbox text-4xl mb-3"></i>
+                <p>Directory is empty</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Display as tree
+    let html = '<div class="space-y-1">';
+    
+    items.forEach(item => {
+        const prefix = item.tree_prefix || '';
+        const name = item.name;
+        const isDir = item.is_directory;
+        
+        if (isDir) {
+            html += `
+                <div class="text-blue-600 hover:bg-blue-50 p-1 rounded cursor-pointer" 
+                     onclick="navigateToDir('${item.path || name}')">
+                    ${prefix}<i class="fas fa-folder mr-1"></i> ${name}/
+                </div>
+            `;
+        } else {
+            const size = item.size ? formatUtils.formatBytes(item.size) : '';
+            const lines = item.line_count ? `${item.line_count} lines` : '';
+            const meta = [size, lines].filter(Boolean).join(', ');
+            
+            html += `
+                <div class="text-gray-700 hover:bg-gray-50 p-1 rounded cursor-pointer"
+                     onclick="quickViewFile('${item.path || name}')">
+                    ${prefix}<i class="fas fa-file text-gray-400 mr-1"></i> ${name}
+                    ${meta ? `<span class="text-xs text-gray-500 ml-2">(${meta})</span>` : ''}
+                </div>
+            `;
+        }
+    });
+    
+    html += '</div>';
+    
+    document.getElementById('directoryListing').innerHTML = html;
+}
+
+function navigateToDir(path) {
+    document.getElementById('dirPath').value = path;
+    browseDirectory();
+}
+
+function quickViewFile(filePath) {
+    document.getElementById('readFilePath').value = filePath;
+    loadSection('files');
+    setTimeout(() => readCodeFile(), 500);
+}
+</script>

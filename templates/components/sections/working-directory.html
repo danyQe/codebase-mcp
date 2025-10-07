@@ -1,0 +1,543 @@
+<!-- Working Directory Management Section -->
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg shadow-lg p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold flex items-center">
+                    <i class="fas fa-folder-open mr-3"></i>
+                    Working Directory Manager
+                </h2>
+                <p class="text-blue-100 mt-1">Dynamically change and manage your project working directory</p>
+            </div>
+            <button onclick="refreshWorkingDirectory()" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-md transition-colors">
+                <i class="fas fa-sync-alt mr-2"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <!-- Current Directory Info -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                    Current Directory
+                </h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <!-- Directory Path -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Active Directory Path</label>
+                    <div class="flex space-x-2">
+                        <input type="text" id="currentWorkingDir" readonly 
+                               class="flex-1 border border-gray-300 rounded-md px-3 py-2 bg-gray-50 text-sm font-mono text-gray-900">
+                        <button onclick="copyCurrentPath()" class="bg-gray-200 hover:bg-gray-300 px-3 py-2 rounded-md transition-colors" title="Copy path">
+                            <i class="fas fa-copy text-gray-700"></i>
+                        </button>
+                        <button onclick="openInExplorer()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-md transition-colors" title="Open in file explorer">
+                            <i class="fas fa-external-link-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Directory Status -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="bg-gray-50 rounded-lg p-3 text-center">
+                        <div id="dirExistsStatus" class="text-2xl mb-1">—</div>
+                        <div class="text-xs text-gray-600">Exists</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-3 text-center">
+                        <div id="dirReadableStatus" class="text-2xl mb-1">—</div>
+                        <div class="text-xs text-gray-600">Readable</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-3 text-center">
+                        <div id="dirWritableStatus" class="text-2xl mb-1">—</div>
+                        <div class="text-xs text-gray-600">Writable</div>
+                    </div>
+                </div>
+                
+                <!-- Services Status -->
+                <div>
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">Initialized Services</h4>
+                    <div id="servicesStatus" class="grid grid-cols-2 gap-2 text-xs">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change Directory -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-gray-50 to-orange-50 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-exchange-alt text-orange-500 mr-2"></i>
+                    Change Directory
+                </h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <!-- New Directory Input -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">New Directory Path</label>
+                    <input type="text" id="newWorkingDir" placeholder="C:/path/to/your/project" 
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                    <p class="text-xs text-gray-500 mt-1">
+                        <i class="fas fa-info-circle"></i>
+                        Enter absolute path to your project directory
+                    </p>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex space-x-2">
+                    <button onclick="validateWorkingDir()" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2.5 rounded-md text-sm font-medium transition-colors shadow-sm">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        Validate
+                    </button>
+                    <button onclick="changeWorkingDir()" class="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2.5 rounded-md text-sm font-medium transition-colors shadow-sm">
+                        <i class="fas fa-rocket mr-2"></i>
+                        Change & Reinitialize
+                    </button>
+                </div>
+                
+                <!-- Validation Result -->
+                <div id="dirValidationResult" class="hidden rounded-lg p-4"></div>
+                
+                <!-- Warning -->
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md">
+                    <div class="flex">
+                        <i class="fas fa-exclamation-triangle text-yellow-400 mt-0.5"></i>
+                        <div class="ml-3">
+                            <p class="text-sm text-yellow-800 font-medium">Important</p>
+                            <p class="text-xs text-yellow-700 mt-1">
+                                Changing the working directory will reinitialize all services including search index, git repo, and memory system.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Directories -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden xl:col-span-2">
+            <div class="px-6 py-4 bg-gradient-to-r from-gray-50 to-purple-50 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-clock text-purple-500 mr-2"></i>
+                    Recent Directories
+                </h3>
+                <button onclick="clearRecentDirs()" class="text-sm text-gray-500 hover:text-gray-700">
+                    Clear History
+                </button>
+            </div>
+            <div class="p-6">
+                <div id="recentDirectories" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Directory Statistics -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden xl:col-span-2">
+            <div class="px-6 py-4 bg-gradient-to-r from-gray-50 to-green-50 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-chart-bar text-green-500 mr-2"></i>
+                    Directory Change History & Statistics
+                </h3>
+            </div>
+            <div class="p-6">
+                <div id="directoryChangeHistory" class="space-y-2">
+                    <!-- Change history log -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Working Directory Management Functions
+let recentDirs = loadRecentDirs();
+let changeHistory = loadChangeHistory();
+
+async function refreshWorkingDirectory() {
+    const result = await apiRoutes.workingDirectory.get();
+    
+    if (result.success && result.data.result) {
+        const data = result.data.result;
+        
+        // Update current directory
+        document.getElementById('currentWorkingDir').value = data.working_directory;
+        appState.set('workingDirectory', data.working_directory);
+        
+        // Update status indicators
+        document.getElementById('dirExistsStatus').innerHTML = data.directory_exists 
+            ? '<i class="fas fa-check text-green-500"></i>' 
+            : '<i class="fas fa-times text-red-500"></i>';
+            
+        document.getElementById('dirReadableStatus').innerHTML = data.directory_readable
+            ? '<i class="fas fa-check text-green-500"></i>'
+            : '<i class="fas fa-times text-red-500"></i>';
+            
+        document.getElementById('dirWritableStatus').innerHTML = data.directory_writable
+            ? '<i class="fas fa-check text-green-500"></i>'
+            : '<i class="fas fa-times text-red-500"></i>';
+        
+        // Update services status
+        const servicesHtml = Object.entries(data.services_status || {}).map(([service, status]) => {
+            const icon = status ? 'check' : 'times';
+            const color = status ? 'green' : 'red';
+            return `
+                <div class="flex items-center justify-between p-2 rounded-md bg-gray-50">
+                    <span class="text-gray-700">${formatServiceName(service)}</span>
+                    <i class="fas fa-${icon} text-${color}-500"></i>
+                </div>
+            `;
+        }).join('');
+        
+        document.getElementById('servicesStatus').innerHTML = servicesHtml;
+        
+        notifications.success('Working directory info refreshed');
+    }
+}
+
+async function validateWorkingDir() {
+    const newPath = document.getElementById('newWorkingDir').value.trim();
+    const resultDiv = document.getElementById('dirValidationResult');
+    
+    if (!newPath) {
+        resultDiv.className = 'rounded-lg p-4 border border-red-300 bg-red-50';
+        resultDiv.innerHTML = `
+            <div class="flex items-center text-red-700">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <span class="font-medium">Please enter a directory path</span>
+            </div>
+        `;
+        resultDiv.classList.remove('hidden');
+        return;
+    }
+    
+    const result = await apiRoutes.workingDirectory.validate(newPath);
+    
+    if (result.success && result.data.result) {
+        const validation = result.data.result;
+        resultDiv.classList.remove('hidden');
+        
+        if (validation.is_valid) {
+            resultDiv.className = 'rounded-lg p-4 border border-green-300 bg-green-50';
+            resultDiv.innerHTML = `
+                <div class="space-y-2">
+                    <div class="flex items-center text-green-700">
+                        <i class="fas fa-check-circle mr-2 text-lg"></i>
+                        <span class="font-semibold">Valid Directory</span>
+                    </div>
+                    <div class="text-sm text-green-800">
+                        <div><strong>Resolved Path:</strong> ${validation.resolved_path}</div>
+                        ${validation.warnings.length > 0 ? `
+                            <div class="mt-2 text-yellow-700">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                ${validation.warnings.join(', ')}
+                            </div>
+                        ` : ''}
+                    </div>
+                    <button onclick="changeWorkingDir()" class="mt-3 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md text-sm font-medium transition-colors">
+                        Proceed to Change Directory
+                    </button>
+                </div>
+            `;
+            notifications.success('Directory validation passed');
+        } else {
+            resultDiv.className = 'rounded-lg p-4 border border-red-300 bg-red-50';
+            resultDiv.innerHTML = `
+                <div class="space-y-2">
+                    <div class="flex items-center text-red-700">
+                        <i class="fas fa-times-circle mr-2 text-lg"></i>
+                        <span class="font-semibold">Invalid Directory</span>
+                    </div>
+                    <div class="text-sm text-red-800">
+                        <div><strong>Path:</strong> ${validation.resolved_path || newPath}</div>
+                        <div class="mt-2">
+                            <strong>Issues:</strong>
+                            <ul class="list-disc list-inside mt-1">
+                                ${validation.errors.map(err => `<li>${err}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+            notifications.error('Directory validation failed');
+        }
+    }
+}
+function showLoading(message = 'Loading...') {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        overlay.querySelector('span').textContent = message;
+        overlay.classList.remove('hidden');
+    }
+}
+
+async function changeWorkingDir() {
+    const newPath = document.getElementById('newWorkingDir').value.trim();
+    const resultDiv = document.getElementById('dirValidationResult');
+    
+    if (!newPath) {
+        notifications.error('Please enter a directory path');
+        return;
+    }
+    
+    if (!confirm(`⚠️ Change Working Directory?\n\nNew Path: ${newPath}\n\nThis will reinitialize all services:\n• Search Index\n• Git Repository\n• Memory System\n• All Pipelines\n\nContinue?`)) {
+        return;
+    }
+    
+    resultDiv.classList.add('hidden');
+    showLoading('Changing working directory and reinitializing services...');
+    
+    try {
+        const result = await apiRoutes.workingDirectory.change(newPath);
+        
+        hideLoading();
+        
+        if (result.success && result.data.result) {
+            const data = result.data.result;
+            
+            // Update UI
+            document.getElementById('currentWorkingDir').value = data.new_working_directory;
+            document.getElementById('newWorkingDir').value = '';
+            appState.set('workingDirectory', data.new_working_directory);
+            
+            // Add to recent directories
+            addToRecentDirs(data.new_working_directory);
+            
+            // Add to change history
+            addToChangeHistory({
+                from: data.old_working_directory,
+                to: data.new_working_directory,
+                timestamp: new Date().toISOString(),
+                servicesReinitialized: data.services_reinitialized
+            });
+            
+            // Show success
+            resultDiv.className = 'rounded-lg p-4 border border-green-300 bg-green-50';
+            resultDiv.innerHTML = `
+                <div class="space-y-2">
+                    <div class="flex items-center text-green-700">
+                        <i class="fas fa-check-circle mr-2 text-lg"></i>
+                        <span class="font-semibold">Directory Changed Successfully!</span>
+                    </div>
+                    <div class="text-sm text-green-800">
+                        <div><strong>Old:</strong> ${data.old_working_directory}</div>
+                        <div><strong>New:</strong> ${data.new_working_directory}</div>
+                        <div class="mt-2">
+                            <strong>Services Reinitialized:</strong>
+                            <div class="grid grid-cols-2 gap-1 mt-1">
+                                ${Object.entries(data.services_reinitialized || {}).map(([service, status]) => `
+                                    <div class="flex items-center">
+                                        <i class="fas fa-${status ? 'check' : 'times'} text-${status ? 'green' : 'red'}-500 mr-1"></i>
+                                        <span class="text-xs">${formatServiceName(service)}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            resultDiv.classList.remove('hidden');
+            
+            notifications.success(`Working directory changed to ${data.new_working_directory}`);
+            
+            // Refresh all data
+            setTimeout(() => {
+                refreshAll();
+                loadRecentDirectories();
+                loadChangeHistory();
+            }, 1000);
+        } else {
+            throw new Error(result.error || 'Failed to change directory');
+        }
+        
+    } catch (error) {
+        hideLoading();
+        resultDiv.className = 'rounded-lg p-4 border border-red-300 bg-red-50';
+        resultDiv.innerHTML = `
+            <div class="flex items-center text-red-700">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <div>
+                    <div class="font-semibold">Failed to Change Directory</div>
+                    <div class="text-sm mt-1">${error.message}</div>
+                </div>
+            </div>
+        `;
+        resultDiv.classList.remove('hidden');
+        notifications.error('Failed to change directory: ' + error.message);
+    }
+}
+
+function copyCurrentPath() {
+    const path = document.getElementById('currentWorkingDir').value;
+    navigator.clipboard.writeText(path)
+        .then(() => notifications.success('Path copied to clipboard'))
+        .catch(() => notifications.error('Failed to copy'));
+}
+
+function openInExplorer() {
+    const path = document.getElementById('currentWorkingDir').value;
+    notifications.info('Open in explorer functionality requires electron/desktop integration');
+}
+
+function formatServiceName(service) {
+    return service.split('_').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+}
+
+// Recent Directories Management
+function loadRecentDirs() {
+    try {
+        const stored = localStorage.getItem('recentDirectories');
+        return stored ? JSON.parse(stored) : [];
+    } catch {
+        return [];
+    }
+}
+
+function saveRecentDirs() {
+    localStorage.setItem('recentDirectories', JSON.stringify(recentDirs));
+}
+
+function addToRecentDirs(path) {
+    // Remove if already exists
+    recentDirs = recentDirs.filter(d => d.path !== path);
+    
+    // Add to front
+    recentDirs.unshift({
+        path,
+        timestamp: new Date().toISOString()
+    });
+    
+    // Keep only last 10
+    recentDirs = recentDirs.slice(0, 10);
+    
+    saveRecentDirs();
+    loadRecentDirectories();
+}
+
+function loadRecentDirectories() {
+    const container = document.getElementById('recentDirectories');
+    
+    if (recentDirs.length === 0) {
+        container.innerHTML = `
+            <div class="col-span-full text-center py-8 text-gray-500">
+                <i class="fas fa-folder-open text-4xl mb-2"></i>
+                <p>No recent directories</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = recentDirs.map((dir, idx) => `
+        <div class="border border-gray-200 rounded-lg p-3 hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer group"
+             onclick="quickSwitchDir('${dir.path}')">
+            <div class="flex items-start justify-between mb-2">
+                <i class="fas fa-folder text-blue-500 text-lg"></i>
+                <span class="text-xs text-gray-500">${formatUtils.formatRelativeTime(dir.timestamp)}</span>
+            </div>
+            <div class="text-sm font-mono text-gray-900 truncate" title="${dir.path}">
+                ${dir.path}
+            </div>
+            <button onclick="event.stopPropagation(); removeRecentDir(${idx})" 
+                    class="mt-2 text-xs text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity">
+                <i class="fas fa-trash mr-1"></i> Remove
+            </button>
+        </div>
+    `).join('');
+}
+
+function quickSwitchDir(path) {
+    document.getElementById('newWorkingDir').value = path;
+    validateWorkingDir();
+}
+
+function removeRecentDir(idx) {
+    recentDirs.splice(idx, 1);
+    saveRecentDirs();
+    loadRecentDirectories();
+    notifications.info('Removed from recent directories');
+}
+
+function clearRecentDirs() {
+    if (confirm('Clear all recent directories?')) {
+        recentDirs = [];
+        saveRecentDirs();
+        loadRecentDirectories();
+        notifications.success('Recent directories cleared');
+    }
+}
+
+// Change History Management
+function loadChangeHistory() {
+    try {
+        const stored = localStorage.getItem('directoryChangeHistory');
+        return stored ? JSON.parse(stored) : [];
+    } catch {
+        return [];
+    }
+}
+
+function saveChangeHistory() {
+    localStorage.setItem('directoryChangeHistory', JSON.stringify(changeHistory));
+}
+
+function addToChangeHistory(change) {
+    changeHistory.unshift(change);
+    
+    // Keep only last 50
+    changeHistory = changeHistory.slice(0, 50);
+    
+    saveChangeHistory();
+    loadHistoryDisplay();
+}
+
+function loadHistoryDisplay() {
+    const container = document.getElementById('directoryChangeHistory');
+    
+    if (changeHistory.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-history text-4xl mb-2"></i>
+                <p>No directory changes recorded</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = changeHistory.map(change => `
+        <div class="border-l-4 border-blue-500 bg-blue-50 p-3 rounded-r-lg">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-blue-700">Directory Change</span>
+                <span class="text-xs text-gray-600">${formatUtils.formatDateTime(change.timestamp)}</span>
+            </div>
+            <div class="text-sm space-y-1">
+                <div class="text-gray-600">
+                    <strong>From:</strong> <code class="text-xs bg-white px-2 py-0.5 rounded">${change.from}</code>
+                </div>
+                <div class="text-gray-600">
+                    <strong>To:</strong> <code class="text-xs bg-white px-2 py-0.5 rounded">${change.to}</code>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', () => {
+    loadRecentDirectories();
+    loadHistoryDisplay();
+});
+
+// Utility functions
+
+function hideLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+    }
+}
+</script>

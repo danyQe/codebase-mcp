@@ -1,0 +1,199 @@
+<!-- Top Header Component -->
+<header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30">
+    <div class="px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <!-- Left: Mobile menu + Title -->
+            <div class="flex items-center space-x-4">
+                <button id="sidebarToggle" onclick="toggleSidebar()" class="lg:hidden text-gray-600 hover:text-gray-900 transition-colors">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <h1 id="sectionTitle" class="text-2xl font-bold text-gray-900 flex items-center">
+                    <i id="sectionIcon" class="fas fa-chart-line mr-2 text-primary"></i>
+                    <span id="sectionTitleText">Dashboard Overview</span>
+                </h1>
+            </div>
+            
+            <!-- Right: Actions + Status -->
+            <div class="flex items-center space-x-4">
+                <!-- Tool History Quick Access -->
+                <button onclick="showToolHistory()" class="hidden sm:flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors" title="View tool call history">
+                    <i class="fas fa-history"></i>
+                    <span class="hidden md:inline">History</span>
+                    <span id="headerToolCallCount" class="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">0</span>
+                </button>
+                
+                <!-- Refresh Button -->
+                <button onclick="refreshAll()" class="flex items-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors shadow-sm">
+                    <i class="fas fa-sync-alt" id="refreshIcon"></i>
+                    <span class="hidden sm:inline">Refresh</span>
+                </button>
+                
+                <!-- Connection Status -->
+                <div class="flex items-center space-x-2 text-sm">
+                    <span id="connectionIndicator" class="relative flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gray-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-gray-500"></span>
+                    </span>
+                    <span id="connectionText" class="text-gray-600 font-medium hidden sm:inline">Connecting...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Stats Bar -->
+    <div id="quickStatsBar" class="bg-gray-50 border-t border-gray-200 px-4 py-2 hidden sm:flex items-center justify-between text-xs">
+        <div class="flex items-center space-x-6">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-folder text-gray-400"></i>
+                <span class="text-gray-600">Files:</span>
+                <span id="headerFileCount" class="font-semibold text-gray-900">-</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-code text-gray-400"></i>
+                <span class="text-gray-600">Lines:</span>
+                <span id="headerLineCount" class="font-semibold text-gray-900">-</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-brain text-gray-400"></i>
+                <span class="text-gray-600">Memories:</span>
+                <span id="headerMemoryCount" class="font-semibold text-gray-900">-</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-code-branch text-gray-400"></i>
+                <span class="text-gray-600">Branch:</span>
+                <span id="headerBranchName" class="font-semibold text-gray-900">-</span>
+            </div>
+        </div>
+        
+        <div class="flex items-center space-x-2 text-gray-500">
+            <i class="fas fa-clock"></i>
+            <span id="lastRefresh">Never</span>
+        </div>
+    </div>
+</header>
+
+<script>
+// Header functionality
+let refreshing = false;
+
+async function refreshAll() {
+    if (refreshing) return;
+    
+    refreshing = true;
+    const refreshIcon = document.getElementById('refreshIcon');
+    refreshIcon.classList.add('fa-spin');
+    
+    try {
+        // Update connection status
+        await updateConnectionStatus();
+        
+        // Refresh current section
+        const currentSection = appState.get('currentSection');
+        if (window[`refresh${capitalize(currentSection)}`]) {
+            await window[`refresh${capitalize(currentSection)}`]();
+        }
+        
+        // Update quick stats
+        await updateQuickStats();
+        
+        // Update last refresh time
+        document.getElementById('lastRefresh').textContent = formatUtils.formatTime(new Date());
+        
+        notifications.success('Dashboard refreshed');
+        
+    } catch (error) {
+        notifications.error('Refresh failed: ' + error.message);
+    } finally {
+        refreshing = false;
+        refreshIcon.classList.remove('fa-spin');
+    }
+}
+
+async function updateConnectionStatus() {
+    const result = await apiRoutes.health.check();
+    const indicator = document.getElementById('connectionIndicator');
+    const text = document.getElementById('connectionText');
+    
+    if (result.success) {
+        indicator.innerHTML = `
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+        `;
+        text.textContent = 'Connected';
+        text.className = 'text-green-600 font-medium hidden sm:inline';
+        appState.set('connected', true);
+    } else {
+        indicator.innerHTML = `
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+        `;
+        text.textContent = 'Disconnected';
+        text.className = 'text-red-600 font-medium hidden sm:inline';
+        appState.set('connected', false);
+    }
+}
+
+async function updateQuickStats() {
+    try {
+        const [statusResult, sessionResult] = await Promise.all([
+            apiRoutes.health.status(),
+            apiRoutes.session.current()
+        ]);
+        
+        if (statusResult.success && statusResult.data.result) {
+            const stats = statusResult.data.result;
+            
+            // Update file count
+            if (stats.search_stats) {
+                document.getElementById('headerFileCount').textContent = 
+                    formatUtils.formatNumber(stats.search_stats.total_files || 0);
+            }
+            
+            // Update line count
+            if (stats.search_stats) {
+                document.getElementById('headerLineCount').textContent = 
+                    formatUtils.formatNumber(stats.search_stats.total_lines || 0);
+            }
+            
+            // Update memory count
+            if (stats.memory_stats) {
+                document.getElementById('headerMemoryCount').textContent = 
+                    formatUtils.formatNumber(stats.memory_stats.total_memories || 0);
+            }
+        }
+        
+        // Update branch name
+        if (sessionResult.success && sessionResult.data.result) {
+            const branch = sessionResult.data.result.current_branch || 'unknown';
+            const isSession = sessionResult.data.result.is_session_branch;
+            
+            const branchElement = document.getElementById('headerBranchName');
+            branchElement.textContent = branch;
+            
+            if (isSession) {
+                branchElement.className = 'font-semibold text-green-600';
+                branchElement.title = 'Active session branch';
+            } else {
+                branchElement.className = 'font-semibold text-gray-900';
+                branchElement.title = 'Regular branch';
+            }
+        }
+        
+    } catch (error) {
+        console.error('Failed to update quick stats:', error);
+    }
+}
+
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// Update tool call count in header
+toolLogger.subscribe(() => {
+    const stats = toolLogger.getStats();
+    document.getElementById('headerToolCallCount').textContent = stats.totalCalls;
+});
+
+// Auto-refresh every 30 seconds
+setInterval(updateConnectionStatus, 30000);
+setInterval(updateQuickStats, 30000);
+</script>

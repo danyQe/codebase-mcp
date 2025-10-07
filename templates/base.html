@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codebase Manager - AI-Powered Development Dashboard</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#64748B',
+                        success: '#10B981',
+                        warning: '#F59E0B',
+                        error: '#EF4444',
+                        sidebar: '#1F2937',
+                        sidebarHover: '#374151',
+                        dark: {
+                            bg: '#0F172A',
+                            card: '#1E293B',
+                            border: '#334155'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Main Container -->
+    <div id="app" class="flex h-screen overflow-hidden">
+        <!-- Sidebar Component -->
+        <div id="sidebar-container"></div>
+        
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header Component -->
+            <div id="header-container"></div>
+            
+            <!-- Content Area -->
+            <main id="content-container" class="flex-1 overflow-auto p-6">
+                <!-- Dynamic content loaded here -->
+            </main>
+        </div>
+    </div>
+    
+    <!-- Modals Container -->
+    <div id="modals-container"></div>
+    
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+    
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 flex items-center space-x-3">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <span class="text-gray-700 font-medium">Loading...</span>
+        </div>
+    </div>
+    
+    <!-- Core JavaScript -->
+    <script src="/static/js/core/logger.js"></script>
+    <script src="/static/js/core/state.js"></script>
+    <script src="/static/js/core/events.js"></script>
+    <script src="/static/js/core/router.js"></script>
+    
+    <!-- API Layer -->
+    <script src="/static/js/api/client.js"></script>
+    <script src="/static/js/api/routes.js"></script>
+    <script src="/static/js/api/interceptor.js"></script>
+    
+    <!-- Components -->
+    <script src="/static/js/components/loader.js"></script>
+    <script src="/static/js/components/notifications.js"></script>
+    
+    <!-- Utilities -->
+    <script src="/static/js/utils/format.js"></script>
+    <script src="/static/js/utils/validation.js"></script>
+    <script src="/static/js/utils/storage.js"></script>
+    
+    <!-- App Initialization -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

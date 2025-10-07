@@ -1,0 +1,593 @@
+<!-- File Operations Section - Read, Write, Edit -->
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg shadow-lg p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold flex items-center">
+                    <i class="fas fa-file-code mr-3"></i>
+                    File Operations
+                </h2>
+                <p class="text-green-100 mt-1">Read, write, and AI-assisted editing of code files</p>
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="refreshFileStats()" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-md">
+                    <i class="fas fa-sync-alt mr-2"></i> Refresh Stats
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-3 gap-4">
+        <div class="bg-white rounded-lg shadow-md p-4 text-center">
+            <div class="text-3xl font-bold text-blue-600" id="writeOperations">0</div>
+            <div class="text-sm text-gray-600">Write Operations</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-4 text-center">
+            <div class="text-3xl font-bold text-orange-600" id="editOperations">0</div>
+            <div class="text-sm text-gray-600">Edit Operations</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-4 text-center">
+            <div class="text-3xl font-bold text-green-600" id="avgQualityScore">0%</div>
+            <div class="text-sm text-gray-600">Avg Quality Score</div>
+        </div>
+    </div>
+
+    <!-- Operations Tabs -->
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <!-- Tab Headers -->
+        <div class="border-b border-gray-200">
+            <nav class="flex -mb-px">
+                <button onclick="switchFileTab('read')" class="file-tab flex-1 py-4 px-6 text-center border-b-2 font-medium text-sm border-blue-500 text-blue-600 bg-blue-50">
+                    <i class="fas fa-book-open mr-2"></i> Read Code
+                </button>
+                <button onclick="switchFileTab('write')" class="file-tab flex-1 py-4 px-6 text-center border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-pencil-alt mr-2"></i> Write File
+                </button>
+                <button onclick="switchFileTab('edit')" class="file-tab flex-1 py-4 px-6 text-center border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-robot mr-2"></i> AI Edit
+                </button>
+                <button onclick="switchFileTab('symbols')" class="file-tab flex-1 py-4 px-6 text-center border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-tags mr-2"></i> List Symbols
+                </button>
+            </nav>
+        </div>
+
+        <!-- Read Tab -->
+        <div id="read-tab" class="file-tab-content p-6">
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">File Path</label>
+                        <input type="text" id="readFilePath" placeholder="path/to/file.py" 
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Symbol Name (Optional)</label>
+                        <input type="text" id="readSymbolName" placeholder="function or class name" 
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Start Line</label>
+                            <input type="number" id="readStartLine" placeholder="Optional" min="1"
+                                   class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">End Line</label>
+                            <input type="number" id="readEndLine" placeholder="Optional" min="1"
+                                   class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                        </div>
+                    </div>
+                    
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="withLineNumbers" checked class="rounded">
+                        <span class="text-sm text-gray-700">Show Line Numbers</span>
+                    </label>
+                    
+                    <button onclick="readCodeFile()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-md font-medium shadow-md">
+                        <i class="fas fa-book-open mr-2"></i> Read Code
+                    </button>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Code Preview</label>
+                    <pre id="readCodePreview" class="bg-gray-900 text-green-400 rounded-md p-4 text-xs font-mono overflow-auto h-96 border border-gray-700">// Code will appear here...</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Write Tab -->
+        <div id="write-tab" class="file-tab-content hidden p-6">
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">File Path</label>
+                        <input type="text" id="writeFilePath" placeholder="path/to/new_file.py" 
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-green-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Purpose (Optional)</label>
+                        <input type="text" id="writePurpose" placeholder="Describe what this file does" 
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Language (Auto-detected)</label>
+                        <select id="writeLanguage" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                            <option value="">Auto-detect</option>
+                            <option value="python">Python</option>
+                            <option value="javascript">JavaScript</option>
+                            <option value="typescript">TypeScript</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Code Content</label>
+                        <textarea id="writeContent" rows="12" placeholder="Enter code content..." 
+                                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-green-500"></textarea>
+                    </div>
+                    
+                    <button onclick="writeCodeFile()" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-md font-medium shadow-md">
+                        <i class="fas fa-save mr-2"></i> Write File with Quality Check
+                    </button>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Write Result</label>
+                    <div id="writeResult" class="bg-gray-50 border border-gray-200 rounded-md p-4 text-sm h-96 overflow-auto">
+                        Results will appear here...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Tab -->
+        <div id="edit-tab" class="file-tab-content hidden p-6">
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div class="bg-orange-50 border border-orange-200 rounded-md p-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-robot text-orange-500 text-xl mr-3 mt-1"></i>
+                            <div class="text-sm text-orange-800">
+                                <p class="font-medium">AI-Assisted Editing</p>
+                                <p class="text-xs mt-1">Powered by Gemini - Specify changes and AI will apply them intelligently</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Target File</label>
+                        <input type="text" id="editFilePath" placeholder="path/to/existing_file.py" 
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Edit Instructions</label>
+                        <input type="text" id="editInstructions" placeholder="e.g., Add error handling to process_data function" 
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                        <p class="text-xs text-gray-500 mt-1">Describe what you want to change</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Code Edit (Sketch)</label>
+                        <textarea id="editCode" rows="10" 
+                                  placeholder="// ... existing code ...
+def process_data(data):
+    try:
+        # Add your changes here
+        pass
+    except Exception as e:
+        logger.error(f'Error: {e}')
+// ... existing code ..." 
+                                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-orange-500"></textarea>
+                        <p class="text-xs text-gray-500 mt-1">
+                            <i class="fas fa-info-circle"></i>
+                            Use <code class="bg-gray-100 px-1 rounded">// ... existing code ...</code> to mark unchanged sections
+                        </p>
+                    </div>
+                    
+                    <button onclick="editCodeFile()" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-md font-medium shadow-md">
+                        <i class="fas fa-magic mr-2"></i> AI Edit File
+                    </button>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Edit Result</label>
+                    <div id="editResult" class="bg-gray-50 border border-gray-200 rounded-md p-4 text-sm h-96 overflow-auto">
+                        AI edit results will appear here...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Symbols Tab -->
+        <div id="symbols-tab" class="file-tab-content hidden p-6">
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">File Path</label>
+                        <input type="text" id="symbolsFilePath" placeholder="path/to/file.py" 
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    
+                    <button onclick="listFileSymbols()" class="w-full bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-md font-medium shadow-md">
+                        <i class="fas fa-tags mr-2"></i> List All Symbols
+                    </button>
+                    
+                    <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
+                        <div class="text-sm text-blue-800">
+                            <p class="font-medium">What are symbols?</p>
+                            <ul class="text-xs mt-2 space-y-1 list-disc list-inside">
+                                <li>Functions and methods</li>
+                                <li>Classes and interfaces</li>
+                                <li>Types and enums</li>
+                                <li>Variable declarations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Symbols Found</label>
+                    <div id="symbolsList" class="bg-gray-50 border border-gray-200 rounded-md p-4 text-sm h-96 overflow-auto">
+                        Symbols will appear here...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// File Operations Functions
+let currentFileTab = 'read';
+
+function initFiles() {
+    refreshFileStats();
+}
+
+function switchFileTab(tabName) {
+    currentFileTab = tabName;
+    
+    // Update tabs
+    document.querySelectorAll('.file-tab').forEach(tab => {
+        tab.classList.remove('border-blue-500', 'border-green-500', 'border-orange-500', 'border-purple-500');
+        tab.classList.remove('text-blue-600', 'text-green-600', 'text-orange-600', 'text-purple-600');
+        tab.classList.remove('bg-blue-50', 'bg-green-50', 'bg-orange-50', 'bg-purple-50');
+        tab.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    document.querySelectorAll('.file-tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    // Activate selected tab
+    const colors = {
+        read: { border: 'border-blue-500', text: 'text-blue-600', bg: 'bg-blue-50' },
+        write: { border: 'border-green-500', text: 'text-green-600', bg: 'bg-green-50' },
+        edit: { border: 'border-orange-500', text: 'text-orange-600', bg: 'bg-orange-50' },
+        symbols: { border: 'border-purple-500', text: 'text-purple-600', bg: 'bg-purple-50' }
+    };
+    
+    const activeTab = event.target.closest('.file-tab');
+    if (activeTab && colors[tabName]) {
+        activeTab.classList.add(colors[tabName].border, colors[tabName].text, colors[tabName].bg);
+    }
+    
+    document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+}
+
+async function refreshFileStats() {
+    const [writeResult, editResult] = await Promise.all([
+        apiRoutes.files.writeStats(),
+        apiRoutes.files.editStats()
+    ]);
+    
+    if (writeResult.success && writeResult.data.result) {
+        const stats = writeResult.data.result;
+        document.getElementById('writeOperations').textContent = stats.total_writes || 0;
+    }
+    
+    if (editResult.success && editResult.data.result) {
+        const stats = editResult.data.result;
+        document.getElementById('editOperations').textContent = stats.total_edits || 0;
+        
+        const avgQuality = stats.avg_quality_score || 0;
+        document.getElementById('avgQualityScore').textContent = (avgQuality * 100).toFixed(1) + '%';
+    }
+}
+
+async function readCodeFile() {
+    const filePath = document.getElementById('readFilePath').value.trim();
+    
+    if (!filePath) {
+        notifications.warning('Please enter a file path');
+        return;
+    }
+    
+    showLoading('Reading file...');
+    
+    const options = {
+        symbolName: document.getElementById('readSymbolName').value || null,
+        startLine: document.getElementById('readStartLine').value || null,
+        endLine: document.getElementById('readEndLine').value || null,
+        withLineNumbers: document.getElementById('withLineNumbers').checked
+    };
+    
+    const result = await apiRoutes.files.read(filePath, options);
+    
+    hideLoading();
+    
+    if (result.success && result.data.result) {
+        const content = result.data.result.content || 'No content';
+        document.getElementById('readCodePreview').textContent = content;
+        notifications.success(`Loaded ${filePath}`);
+    }
+}
+
+async function writeCodeFile() {
+    const filePath = document.getElementById('writeFilePath').value.trim();
+    const content = document.getElementById('writeContent').value;
+    
+    if (!filePath || !content) {
+        notifications.warning('Please enter file path and content');
+        return;
+    }
+    
+    if (!confirm(`Write file: ${filePath}?`)) return;
+    
+    showLoading('Writing file with quality checks...');
+    
+    const options = {
+        purpose: document.getElementById('writePurpose').value || null,
+        language: document.getElementById('writeLanguage').value || null
+    };
+    
+    const result = await apiRoutes.files.write(filePath, content, options);
+    
+    hideLoading();
+    
+    const resultDiv = document.getElementById('writeResult');
+    
+    if (result.success && result.data.result) {
+        const data = result.data.result;
+        
+        const qualityColor = data.quality_score >= 0.8 ? 'green' : data.quality_score >= 0.6 ? 'yellow' : 'red';
+        
+        resultDiv.innerHTML = `
+            <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 bg-${qualityColor}-50 border border-${qualityColor}-200 rounded-md">
+                    <span class="font-medium text-${qualityColor}-800">Quality Score</span>
+                    <span class="text-2xl font-bold text-${qualityColor}-600">${(data.quality_score * 100).toFixed(1)}%</span>
+                </div>
+                
+                <div class="p-3 bg-gray-50 rounded-md">
+                    <div class="text-sm font-medium text-gray-700 mb-2">Summary</div>
+                    <div class="text-sm text-gray-600">${data.summary}</div>
+                </div>
+                
+                ${data.formatting ? `
+                    <div class="p-3 bg-blue-50 rounded-md">
+                        <div class="text-sm font-medium text-blue-700 mb-2">
+                            <i class="fas fa-paint-brush mr-1"></i> Formatting
+                        </div>
+                        <div class="text-xs text-blue-800">
+                            ${data.formatting.success ? '✅ Code formatted successfully' : '❌ Formatting failed'}
+                        </div>
+                    </div>
+                ` : ''}
+                
+                ${data.dependencies && data.dependencies.imports_found > 0 ? `
+                    <div class="p-3 bg-purple-50 rounded-md">
+                        <div class="text-sm font-medium text-purple-700 mb-2">
+                            <i class="fas fa-box mr-1"></i> Dependencies
+                        </div>
+                        <div class="text-xs text-purple-800">
+                            Found ${data.dependencies.imports_found} imports
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+        
+        notifications.success(`File written: ${filePath}`);
+        await refreshFileStats();
+    } else {
+        resultDiv.innerHTML = `
+            <div class="bg-red-50 border border-red-200 rounded-md p-4">
+                <div class="text-red-700 font-medium">Write Failed</div>
+                <div class="text-sm text-red-600 mt-2">${result.error || 'Unknown error'}</div>
+            </div>
+        `;
+    }
+}
+
+async function editCodeFile() {
+    const targetFile = document.getElementById('editFilePath').value.trim();
+    const instructions = document.getElementById('editInstructions').value.trim();
+    const codeEdit = document.getElementById('editCode').value;
+    
+    if (!targetFile || !instructions || !codeEdit) {
+        notifications.warning('Please fill in all required fields');
+        return;
+    }
+    
+    if (!confirm(`AI Edit file: ${targetFile}?\n\nThis will use Gemini API credits.`)) return;
+    
+    showLoading('AI editing file... This may take 10-30 seconds');
+    
+    const result = await apiRoutes.files.edit(targetFile, instructions, codeEdit, {});
+    
+    hideLoading();
+    
+    const resultDiv = document.getElementById('editResult');
+    
+    if (result.success && result.data.result) {
+        const data = result.data.result;
+        
+        const qualityColor = data.quality_score >= 0.8 ? 'green' : data.quality_score >= 0.6 ? 'yellow' : 'red';
+        
+        resultDiv.innerHTML = `
+            <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 bg-${qualityColor}-50 border border-${qualityColor}-200 rounded-md">
+                    <span class="font-medium text-${qualityColor}-800">Edit Quality</span>
+                    <span class="text-2xl font-bold text-${qualityColor}-600">${(data.quality_score * 100).toFixed(1)}%</span>
+                </div>
+                
+                <div class="p-3 bg-gray-50 rounded-md">
+                    <div class="text-sm text-gray-600">${data.summary}</div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="p-2 bg-blue-50 rounded">
+                        <div class="text-blue-600">Processing Time</div>
+                        <div class="font-semibold text-blue-800">${data.processing?.processing_time_seconds?.toFixed(2) || 0}s</div>
+                    </div>
+                    <div class="p-2 bg-purple-50 rounded">
+                        <div class="text-purple-600">Gemini Calls</div>
+                        <div class="font-semibold text-purple-800">${data.processing?.total_gemini_calls || 0}</div>
+                    </div>
+                </div>
+                
+                ${data.errors && data.errors.warnings?.length > 0 ? `
+                    <div class="p-3 bg-yellow-50 rounded-md">
+                        <div class="text-sm font-medium text-yellow-700 mb-2">Warnings</div>
+                        <ul class="text-xs text-yellow-800 space-y-1">
+                            ${data.errors.warnings.map(w => `<li>• ${w}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+        
+        notifications.success(`File edited: ${targetFile}`);
+        await refreshFileStats();
+    } else {
+        resultDiv.innerHTML = `
+            <div class="bg-red-50 border border-red-200 rounded-md p-4">
+                <div class="text-red-700 font-medium">Edit Failed</div>
+                <div class="text-sm text-red-600 mt-2">${result.error || 'Unknown error'}</div>
+            </div>
+        `;
+    }
+}
+
+async function listFileSymbols() {
+    const filePath = document.getElementById('symbolsFilePath').value.trim();
+    
+    if (!filePath) {
+        notifications.warning('Please enter a file path');
+        return;
+    }
+    
+    showLoading('Analyzing file symbols...');
+    
+    const result = await apiRoutes.search.listFileSymbols(filePath);
+    
+    hideLoading();
+    
+    if (result.success && result.data.result) {
+        const data = result.data.result;
+        const symbols = data.symbols || [];
+        
+        const container = document.getElementById('symbolsList');
+        
+        if (symbols.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-inbox text-3xl mb-2"></i>
+                    <p>No symbols found in file</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Group by type
+        const byType = {};
+        symbols.forEach(sym => {
+            if (!byType[sym.type]) byType[sym.type] = [];
+            byType[sym.type].push(sym);
+        });
+        
+        let html = `
+            <div class="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-md">
+                <div class="text-sm font-medium text-purple-800">
+                    ${data.file} - ${data.total_lines} lines
+                </div>
+                <div class="text-xs text-purple-600 mt-1">
+                    Found ${symbols.length} symbols
+                </div>
+            </div>
+        `;
+        
+        Object.entries(byType).forEach(([type, syms]) => {
+            html += `
+                <div class="mb-4">
+                    <div class="text-sm font-semibold text-gray-700 mb-2 uppercase">${type} (${syms.length})</div>
+                    <div class="space-y-2">
+                        ${syms.map(sym => `
+                            <div class="border border-gray-200 rounded-md p-3 hover:bg-gray-50">
+                                <div class="flex items-center justify-between mb-1">
+                                    <code class="text-sm font-semibold text-gray-900">${sym.name}</code>
+                                    <span class="text-xs text-gray-500">Line ${sym.line}</span>
+                                </div>
+                                ${sym.signature ? `
+                                    <div class="font-mono text-xs text-gray-600 mt-1">${sym.signature}</div>
+                                ` : ''}
+                                <button onclick="viewSymbolCode('${filePath}', '${sym.name}')" 
+                                        class="mt-2 text-xs bg-purple-500 hover:bg-purple-600 text-white px-2 py-1 rounded">
+                                    <i class="fas fa-eye mr-1"></i> View
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+        notifications.success(`Found ${symbols.length} symbols`);
+    }
+}
+
+async function viewSymbolCode(filePath, symbolName) {
+    showLoading('Loading symbol code...');
+    
+    const result = await apiRoutes.files.read(filePath, {
+        symbolName,
+        occurrence: 1,
+        withLineNumbers: true
+    });
+    
+    hideLoading();
+    
+    if (result.success && result.data.result) {
+        // Show in read tab
+        switchFileTab('read');
+        document.getElementById('readFilePath').value = filePath;
+        document.getElementById('readSymbolName').value = symbolName;
+        document.getElementById('readCodePreview').textContent = result.data.result.content;
+        notifications.success(`Loaded symbol: ${symbolName}`);
+    }
+}
+
+// Enter key handlers
+document.addEventListener('DOMContentLoaded', () => {
+    ['readFilePath', 'symbolsFilePath'].forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    if (id === 'readFilePath') readCodeFile();
+                    else if (id === 'symbolsFilePath') listFileSymbols();
+                }
+            });
+        }
+    });
+});
+</script>

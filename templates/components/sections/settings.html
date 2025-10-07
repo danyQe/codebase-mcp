@@ -1,0 +1,241 @@
+<!-- Settings Section -->
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="bg-gradient-to-r from-gray-700 to-indigo-700 rounded-lg shadow-lg p-6 text-white">
+        <h2 class="text-2xl font-bold flex items-center">
+            <i class="fas fa-cog mr-3"></i>
+            Settings & Preferences
+        </h2>
+        <p class="text-gray-200 mt-1">Configure dashboard behavior and preferences</p>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <!-- Dashboard Settings -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-desktop text-blue-500 mr-2"></i>
+                    Dashboard Settings
+                </h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <label class="flex items-center justify-between p-3 rounded-md hover:bg-gray-50 cursor-pointer">
+                    <div class="flex items-center space-x-3">
+                        <input type="checkbox" id="autoRefresh" class="rounded text-blue-500 focus:ring-blue-500">
+                        <div>
+                            <div class="text-sm font-medium text-gray-900">Auto-Refresh</div>
+                            <div class="text-xs text-gray-500">Automatically refresh dashboard every 30s</div>
+                        </div>
+                    </div>
+                </label>
+                
+                <label class="flex items-center justify-between p-3 rounded-md hover:bg-gray-50 cursor-pointer">
+                    <div class="flex items-center space-x-3">
+                        <input type="checkbox" id="showTimestamps" checked class="rounded text-blue-500 focus:ring-blue-500">
+                        <div>
+                            <div class="text-sm font-medium text-gray-900">Show Timestamps</div>
+                            <div class="text-xs text-gray-500">Display timestamps in API responses</div>
+                        </div>
+                    </div>
+                </label>
+                
+                <label class="flex items-center justify-between p-3 rounded-md hover:bg-gray-50 cursor-pointer">
+                    <div class="flex items-center space-x-3">
+                        <input type="checkbox" id="compactMode" class="rounded text-blue-500 focus:ring-blue-500">
+                        <div>
+                            <div class="text-sm font-medium text-gray-900">Compact Mode</div>
+                            <div class="text-xs text-gray-500">Reduce spacing and padding</div>
+                        </div>
+                    </div>
+                </label>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Refresh Interval (seconds)</label>
+                    <input type="number" id="refreshInterval" value="30" min="5" max="300" step="5"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+        </div>
+
+        <!-- API Configuration -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-plug text-green-500 mr-2"></i>
+                    API Configuration
+                </h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">API Base URL</label>
+                    <div class="flex space-x-2">
+                        <input type="text" id="apiBaseUrl" value="http://localhost:6789"
+                               class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-green-500">
+                        <button onclick="testApiConnection()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-plug mr-1"></i> Test
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="apiTestResult" class="hidden p-3 rounded-md"></div>
+            </div>
+        </div>
+
+        <!-- Data Management -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-red-50 to-orange-50 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-database text-red-500 mr-2"></i>
+                    Data Management
+                </h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                    <div class="flex items-start">
+                        <i class="fas fa-exclamation-triangle text-yellow-500 mt-1 mr-3"></i>
+                        <div class="text-sm text-yellow-800">
+                            <p class="font-medium">Danger Zone</p>
+                            <p class="text-xs mt-1">These actions cannot be undone</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="clearToolCallHistory()" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2.5 rounded-md text-sm font-medium">
+                    <i class="fas fa-trash mr-2"></i> Clear Tool Call History
+                </button>
+                
+                <button onclick="clearAllData()" class="w-full bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-md text-sm font-medium">
+                    <i class="fas fa-exclamation-triangle mr-2"></i> Clear All Local Data
+                </button>
+                
+                <div class="text-xs text-gray-500 text-center mt-2">
+                    Local data: Tool history, preferences, recent directories
+                </div>
+            </div>
+        </div>
+
+        <!-- About -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-info-circle text-purple-500 mr-2"></i>
+                    About
+                </h3>
+            </div>
+            <div class="p-6 space-y-3 text-sm">
+                <div>
+                    <strong class="text-gray-900">Codebase Manager Dashboard</strong>
+                    <div class="text-gray-600 text-xs">Version 2.0 - Component Architecture</div>
+                </div>
+                <div class="text-gray-700">
+                    <p>AI-powered codebase management system with:</p>
+                    <ul class="list-disc list-inside mt-2 text-xs space-y-1 text-gray-600">
+                        <li>Semantic code search</li>
+                        <li>AI-assisted editing</li>
+                        <li>Memory system for context</li>
+                        <li>Git automation & sessions</li>
+                        <li>Tool call recording & analysis</li>
+                        <li>Dynamic working directory management</li>
+                    </ul>
+                </div>
+                <div class="pt-3 border-t border-gray-200 text-xs text-gray-500">
+                    Built with FastAPI, Tailwind CSS, and vanilla JavaScript
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Settings Functions
+function initSettings() {
+    loadSettingsFromStorage();
+}
+
+function loadSettingsFromStorage() {
+    const preferences = appState.get('preferences');
+    
+    document.getElementById('autoRefresh').checked = preferences.autoRefresh || false;
+    document.getElementById('showTimestamps').checked = preferences.showTimestamps !== false;
+    document.getElementById('compactMode').checked = preferences.compactMode || false;
+    document.getElementById('refreshInterval').value = (preferences.refreshInterval || 30000) / 1000;
+    document.getElementById('apiBaseUrl').value = window.api.baseURL || 'http://localhost:6789';
+}
+
+function saveSettings() {
+    const preferences = {
+        autoRefresh: document.getElementById('autoRefresh').checked,
+        showTimestamps: document.getElementById('showTimestamps').checked,
+        compactMode: document.getElementById('compactMode').checked,
+        refreshInterval: parseInt(document.getElementById('refreshInterval').value) * 1000
+    };
+    
+    appState.set('preferences', preferences);
+    appState.savePreferences();
+    
+    // Update API URL if changed
+    const newBaseUrl = document.getElementById('apiBaseUrl').value.trim();
+    if (newBaseUrl !== window.api.baseURL) {
+        window.api.setBaseURL(newBaseUrl);
+    }
+    
+    notifications.success('Settings saved successfully');
+}
+
+// Auto-save on change
+['autoRefresh', 'showTimestamps', 'compactMode', 'refreshInterval', 'apiBaseUrl'].forEach(id => {
+    const element = document.getElementById(id);
+    if (element) {
+        element.addEventListener('change', saveSettings);
+    }
+});
+
+async function testApiConnection() {
+    const resultDiv = document.getElementById('apiTestResult');
+    resultDiv.classList.remove('hidden');
+    resultDiv.className = 'p-3 rounded-md bg-blue-50 border border-blue-200';
+    resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Testing connection...';
+    
+    const result = await apiRoutes.health.check();
+    
+    if (result.success) {
+        resultDiv.className = 'p-3 rounded-md bg-green-50 border border-green-200';
+        resultDiv.innerHTML = `
+            <div class="flex items-center text-green-700">
+                <i class="fas fa-check-circle mr-2"></i>
+                <div>
+                    <div class="font-medium">Connection Successful</div>
+                    <div class="text-xs mt-1">API server is responding correctly</div>
+                </div>
+            </div>
+        `;
+        notifications.success('API connection test passed');
+    } else {
+        resultDiv.className = 'p-3 rounded-md bg-red-50 border border-red-200';
+        resultDiv.innerHTML = `
+            <div class="flex items-center text-red-700">
+                <i class="fas fa-times-circle mr-2"></i>
+                <div>
+                    <div class="font-medium">Connection Failed</div>
+                    <div class="text-xs mt-1">${result.error || 'Could not connect to API server'}</div>
+                </div>
+            </div>
+        `;
+        notifications.error('API connection test failed');
+    }
+}
+
+function clearToolCallHistory() {
+    if (toolLogger.clear()) {
+        notifications.success('Tool call history cleared');
+    }
+}
+
+function clearAllData() {
+    if (confirm('⚠️ WARNING: This will clear ALL local data including:\n\n• Tool call history\n• User preferences\n• Recent directories\n• Change history\n\nThis action cannot be undone. Continue?')) {
+        localStorage.clear();
+        notifications.success('All local data cleared. Reloading page...');
+        setTimeout(() => location.reload(), 1500);
+    }
+}
+</script>

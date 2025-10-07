@@ -1,0 +1,371 @@
+<!-- Memory System Section -->
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="bg-gradient-to-r from-pink-500 to-rose-600 rounded-lg shadow-lg p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold flex items-center">
+                    <i class="fas fa-brain mr-3"></i>
+                    Memory System
+                </h2>
+                <p class="text-pink-100 mt-1">Store and retrieve project knowledge across sessions</p>
+            </div>
+            <button onclick="refreshMemoryStats()" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-md">
+                <i class="fas fa-sync-alt mr-2"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Memory Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg shadow-md p-4 text-center">
+            <div class="text-3xl font-bold text-pink-600" id="totalMemories">0</div>
+            <div class="text-sm text-gray-600">Total Memories</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-4 text-center">
+            <div class="text-3xl font-bold text-blue-600" id="recentMemories">0</div>
+            <div class="text-sm text-gray-600">Recent (7 days)</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-4 text-center">
+            <div class="text-3xl font-bold text-green-600" id="verifiedMemories">0</div>
+            <div class="text-sm text-gray-600">Verified</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-4 text-center">
+            <div class="text-3xl font-bold text-purple-600" id="categoryCount">0</div>
+            <div class="text-sm text-gray-600">Categories</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <!-- Store Memory -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-save text-green-500 mr-2"></i>
+                    Store New Memory
+                </h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                    <select id="memoryCategory" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                        <option value="learning">📚 Learning</option>
+                        <option value="progress">🚀 Progress</option>
+                        <option value="preference">⚙️ Preference</option>
+                        <option value="mistake">⚠️ Mistake</option>
+                        <option value="solution">💡 Solution</option>
+                        <option value="architecture">🏗️ Architecture</option>
+                        <option value="integration">🔗 Integration</option>
+                        <option value="debug">🐛 Debug</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Importance: <span id="importanceValue">3</span>/5 <span id="importanceStars">⭐⭐⭐</span>
+                    </label>
+                    <input type="range" id="memoryImportance" min="1" max="5" value="3" 
+                           class="w-full" oninput="updateImportanceDisplay()">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Memory Content</label>
+                    <textarea id="memoryContent" rows="6" placeholder="What do you want to remember?" 
+                              class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-green-500"></textarea>
+                </div>
+                
+                <button onclick="storeMemory()" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-md font-medium shadow-md">
+                    <i class="fas fa-save mr-2"></i> Store Memory
+                </button>
+            </div>
+        </div>
+
+        <!-- Search Memory -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-search text-purple-500 mr-2"></i>
+                    Search Memories
+                </h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Search Query</label>
+                    <input type="text" id="memorySearchQuery" placeholder="Search memories..." 
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Category Filter</label>
+                        <select id="memorySearchCategory" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                            <option value="">All Categories</option>
+                            <option value="learning">Learning</option>
+                            <option value="progress">Progress</option>
+                            <option value="preference">Preference</option>
+                            <option value="mistake">Mistake</option>
+                            <option value="solution">Solution</option>
+                            <option value="architecture">Architecture</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Max Results</label>
+                        <input type="number" id="memoryMaxResults" value="10" min="1" max="50"
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="searchMemories()" class="bg-purple-500 hover:bg-purple-600 text-white py-2.5 rounded-md font-medium">
+                        <i class="fas fa-search mr-2"></i> Search
+                    </button>
+                    <button onclick="getMemoryContext()" class="bg-blue-500 hover:bg-blue-600 text-white py-2.5 rounded-md font-medium">
+                        <i class="fas fa-list mr-2"></i> Context
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Memory Browser -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden xl:col-span-2">
+            <div class="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-database text-blue-500 mr-2"></i>
+                    Memory Browser
+                </h3>
+                <div class="flex items-center space-x-2">
+                    <select id="memoryFilterCategory" class="text-sm border border-gray-300 rounded px-2 py-1" onchange="filterMemories()">
+                        <option value="">All Categories</option>
+                        <option value="learning">Learning</option>
+                        <option value="progress">Progress</option>
+                        <option value="preference">Preference</option>
+                        <option value="mistake">Mistake</option>
+                        <option value="solution">Solution</option>
+                    </select>
+                    <button onclick="loadAllMemories()" class="text-sm text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-sync-alt mr-1"></i> Refresh
+                    </button>
+                </div>
+            </div>
+            <div id="memoriesList" class="p-6 max-h-96 overflow-y-auto">
+                <!-- Memories populated here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Memory Functions
+async function initMemory() {
+    await refreshMemoryStats();
+    await loadAllMemories();
+}
+
+async function refreshMemoryStats() {
+    const result = await apiRoutes.memory.stats();
+    
+    if (result.success && result.data.result) {
+        const stats = result.data.result;
+        
+        document.getElementById('totalMemories').textContent = stats.total_memories || 0;
+        document.getElementById('recentMemories').textContent = stats.recent_count || 0;
+        document.getElementById('verifiedMemories').textContent = stats.verified_count || 0;
+        document.getElementById('categoryCount').textContent = Object.keys(stats.by_category || {}).length;
+    }
+}
+
+function updateImportanceDisplay() {
+    const value = document.getElementById('memoryImportance').value;
+    document.getElementById('importanceValue').textContent = value;
+    document.getElementById('importanceStars').textContent = '⭐'.repeat(parseInt(value));
+}
+
+async function storeMemory() {
+    const category = document.getElementById('memoryCategory').value;
+    const content = document.getElementById('memoryContent').value.trim();
+    const importance = parseInt(document.getElementById('memoryImportance').value);
+    
+    if (!content) {
+        notifications.warning('Please enter memory content');
+        return;
+    }
+    
+    const result = await apiRoutes.memory.store(category, content, { importance });
+    
+    if (result.success) {
+        document.getElementById('memoryContent').value = '';
+        document.getElementById('memoryImportance').value = 3;
+        updateImportanceDisplay();
+        
+        notifications.success('Memory stored successfully');
+        await refreshMemoryStats();
+        await loadAllMemories();
+    }
+}
+
+async function searchMemories() {
+    const query = document.getElementById('memorySearchQuery').value.trim();
+    
+    if (!query) {
+        notifications.warning('Please enter a search query');
+        return;
+    }
+    
+    const options = {
+        category: document.getElementById('memorySearchCategory').value || null,
+        maxResults: parseInt(document.getElementById('memoryMaxResults').value) || 10
+    };
+    
+    showLoading('Searching memories...');
+    const result = await apiRoutes.memory.search(query, options);
+    hideLoading();
+    
+    if (result.success && result.data.result) {
+        displayMemories(result.data.result.results || []);
+        notifications.success(`Found ${result.data.result.total_results} memories`);
+    }
+}
+
+async function getMemoryContext() {
+    const result = await apiRoutes.memory.context();
+    
+    if (result.success && result.data.result) {
+        const context = result.data.result;
+        
+        let html = '<div class="space-y-4">';
+        
+        if (context.recent_progress?.length > 0) {
+            html += `
+                <div>
+                    <div class="font-semibold text-gray-900 mb-2">📈 Recent Progress</div>
+                    ${context.recent_progress.slice(0, 3).map(m => `
+                        <div class="text-sm text-gray-700 p-2 bg-green-50 rounded mb-1">
+                            ${formatUtils.truncate(m.content, 100)}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        if (context.key_learnings?.length > 0) {
+            html += `
+                <div>
+                    <div class="font-semibold text-gray-900 mb-2">💡 Key Learnings</div>
+                    ${context.key_learnings.slice(0, 3).map(m => `
+                        <div class="text-sm text-gray-700 p-2 bg-blue-50 rounded mb-1">
+                            ${formatUtils.truncate(m.content, 100)}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        html += '</div>';
+        
+        document.getElementById('memoriesList').innerHTML = html;
+        notifications.success('Memory context loaded');
+    }
+}
+
+async function loadAllMemories() {
+    const result = await apiRoutes.memory.search(null, { maxResults: 50 });
+    
+    if (result.success && result.data.result) {
+        displayMemories(result.data.result.results || []);
+    }
+}
+
+function displayMemories(memories) {
+    const container = document.getElementById('memoriesList');
+    
+    if (memories.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-brain text-4xl mb-2"></i>
+                <p>No memories found</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            ${memories.map(item => {
+                const memory = item.memory;
+                const icon = formatUtils.getCategoryIcon(memory.category);
+                const stars = formatUtils.getImportanceStars(memory.importance);
+                
+                return `
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div class="flex items-start justify-between mb-2">
+                            <span class="text-sm font-medium">${icon} ${memory.category}</span>
+                            <span class="text-xs">${stars}</span>
+                        </div>
+                        <div class="text-sm text-gray-700 mb-2 line-clamp-3">
+                            ${memory.content}
+                        </div>
+                        <div class="flex items-center justify-between text-xs text-gray-500">
+                            <span>${formatUtils.formatDate(memory.timestamp)}</span>
+                            <div class="space-x-2">
+                                <button onclick="editMemory(${memory.id})" class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="archiveMemory(${memory.id})" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+}
+
+async function filterMemories() {
+    const category = document.getElementById('memoryFilterCategory').value;
+    
+    if (category) {
+        const result = await apiRoutes.memory.search(null, { category, maxResults: 50 });
+        if (result.success && result.data.result) {
+            displayMemories(result.data.result.results || []);
+        }
+    } else {
+        await loadAllMemories();
+    }
+}
+
+async function editMemory(memoryId) {
+    const newContent = prompt('Edit memory content:');
+    if (!newContent) return;
+    
+    const result = await apiRoutes.memory.update(memoryId, { content: newContent });
+    
+    if (result.success) {
+        notifications.success('Memory updated');
+        await loadAllMemories();
+    }
+}
+
+async function archiveMemory(memoryId) {
+    if (!confirm('Archive this memory?')) return;
+    
+    const result = await apiRoutes.memory.archive(memoryId);
+    
+    if (result.success) {
+        notifications.success('Memory archived');
+        await refreshMemoryStats();
+        await loadAllMemories();
+    }
+}
+
+// Enter key for search
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('memorySearchQuery');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchMemories();
+        });
+    }
+});
+</script>

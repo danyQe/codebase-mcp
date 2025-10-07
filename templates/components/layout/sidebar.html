@@ -1,0 +1,186 @@
+<!-- Sidebar Navigation Component -->
+<aside id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-sidebar text-white transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-50 shadow-xl">
+    <!-- Sidebar Header -->
+    <div class="p-4 border-b border-gray-600">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-xl font-bold flex items-center">
+                    <i class="fas fa-robot mr-2"></i>
+                    Codebase Manager
+                </h2>
+                <div class="text-xs text-gray-400 mt-1">AI-Powered Development</div>
+            </div>
+            <button id="sidebarClose" class="lg:hidden text-gray-300 hover:text-white transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="mt-4 px-2 overflow-y-auto h-[calc(100vh-220px)]">
+        <div class="space-y-1">
+            <button onclick="loadSection('dashboard')" class="nav-item w-full text-left px-3 py-2.5 rounded-md text-sm font-medium hover:bg-sidebarHover transition-colors flex items-center group">
+                <i class="fas fa-chart-line mr-3 text-blue-400 group-hover:text-blue-300"></i>
+                <span>Dashboard</span>
+            </button>
+            
+            <button onclick="loadSection('search')" class="nav-item w-full text-left px-3 py-2.5 rounded-md text-sm font-medium hover:bg-sidebarHover transition-colors flex items-center group">
+                <i class="fas fa-search mr-3 text-purple-400 group-hover:text-purple-300"></i>
+                <span>Search & Index</span>
+            </button>
+            
+            <button onclick="loadSection('files')" class="nav-item w-full text-left px-3 py-2.5 rounded-md text-sm font-medium hover:bg-sidebarHover transition-colors flex items-center group">
+                <i class="fas fa-file-code mr-3 text-green-400 group-hover:text-green-300"></i>
+                <span>File Operations</span>
+            </button>
+            
+            <button onclick="loadSection('git')" class="nav-item w-full text-left px-3 py-2.5 rounded-md text-sm font-medium hover:bg-sidebarHover transition-colors flex items-center group">
+                <i class="fas fa-code-branch mr-3 text-orange-400 group-hover:text-orange-300"></i>
+                <span>Git & Sessions</span>
+            </button>
+            
+            <button onclick="loadSection('memory')" class="nav-item w-full text-left px-3 py-2.5 rounded-md text-sm font-medium hover:bg-sidebarHover transition-colors flex items-center group">
+                <i class="fas fa-brain mr-3 text-pink-400 group-hover:text-pink-300"></i>
+                <span>Memory System</span>
+            </button>
+            
+            <button onclick="loadSection('project')" class="nav-item w-full text-left px-3 py-2.5 rounded-md text-sm font-medium hover:bg-sidebarHover transition-colors flex items-center group">
+                <i class="fas fa-project-diagram mr-3 text-indigo-400 group-hover:text-indigo-300"></i>
+                <span>Project Explorer</span>
+            </button>
+            
+            <button onclick="loadSection('directory')" class="nav-item w-full text-left px-3 py-2.5 rounded-md text-sm font-medium hover:bg-sidebarHover transition-colors flex items-center group">
+                <i class="fas fa-folder-tree mr-3 text-yellow-400 group-hover:text-yellow-300"></i>
+                <span>Directory Browser</span>
+            </button>
+            
+            <!-- NEW: Working Directory Manager -->
+            <button onclick="loadSection('working-directory')" class="nav-item w-full text-left px-3 py-2.5 rounded-md text-sm font-medium hover:bg-sidebarHover transition-colors flex items-center group">
+                <i class="fas fa-folder-open mr-3 text-cyan-400 group-hover:text-cyan-300"></i>
+                <span>Working Directory</span>
+                <span class="ml-auto text-xs bg-cyan-500 text-white px-2 py-0.5 rounded-full">NEW</span>
+            </button>
+            
+            <!-- NEW: Tool History -->
+            <button onclick="showToolHistory()" class="nav-item w-full text-left px-3 py-2.5 rounded-md text-sm font-medium hover:bg-sidebarHover transition-colors flex items-center group">
+                <i class="fas fa-history mr-3 text-teal-400 group-hover:text-teal-300"></i>
+                <span>Tool Call History</span>
+                <span class="ml-auto text-xs bg-teal-500 text-white px-2 py-0.5 rounded-full">NEW</span>
+            </button>
+            
+            <button onclick="loadSection('logs')" class="nav-item w-full text-left px-3 py-2.5 rounded-md text-sm font-medium hover:bg-sidebarHover transition-colors flex items-center group">
+                <i class="fas fa-clipboard-list mr-3 text-gray-400 group-hover:text-gray-300"></i>
+                <span>System Logs</span>
+            </button>
+            
+            <button onclick="loadSection('settings')" class="nav-item w-full text-left px-3 py-2.5 rounded-md text-sm font-medium hover:bg-sidebarHover transition-colors flex items-center group">
+                <i class="fas fa-cog mr-3 text-gray-400 group-hover:text-gray-300"></i>
+                <span>Settings</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Status Panel -->
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-600 bg-sidebar">
+        <div class="text-xs text-gray-400 mb-2 flex items-center justify-between">
+            <span>System Status</span>
+            <button onclick="refreshStatus()" class="text-gray-400 hover:text-white transition-colors">
+                <i class="fas fa-sync-alt text-xs"></i>
+            </button>
+        </div>
+        <div id="sidebarStatus" class="space-y-1 text-xs">
+            <div class="flex justify-between items-center">
+                <span class="text-gray-300">API:</span>
+                <span id="apiStatus" class="flex items-center">
+                    <span class="w-2 h-2 rounded-full bg-gray-500 mr-1"></span>
+                    <span class="text-gray-400">Unknown</span>
+                </span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-gray-300">Directory:</span>
+                <span id="dirStatus" class="text-gray-400 truncate ml-2 max-w-[120px]" title="">-</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-gray-300">Tool Calls:</span>
+                <span id="toolCallCount" class="text-gray-400">0</span>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- Sidebar Overlay for mobile -->
+<div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden"></div>
+
+<script>
+// Sidebar functionality
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    
+    sidebar.classList.toggle('-translate-x-full');
+    
+    if (sidebar.classList.contains('-translate-x-full')) {
+        overlay.classList.add('hidden');
+    } else {
+        overlay.classList.remove('hidden');
+    }
+}
+
+function closeSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    
+    sidebar.classList.add('-translate-x-full');
+    overlay.classList.add('hidden');
+}
+
+// Update active nav item
+function updateActiveNav(section) {
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.classList.remove('bg-sidebarHover', 'border-l-4', 'border-blue-500');
+    });
+    
+    const activeItem = Array.from(navItems).find(item => 
+        item.textContent.toLowerCase().includes(section.toLowerCase())
+    );
+    
+    if (activeItem) {
+        activeItem.classList.add('bg-sidebarHover', 'border-l-4', 'border-blue-500');
+    }
+}
+
+// Refresh status
+async function refreshStatus() {
+    const result = await apiRoutes.health.check();
+    
+    if (result.success) {
+        document.getElementById('apiStatus').innerHTML = `
+            <span class="w-2 h-2 rounded-full bg-green-500 mr-1 animate-pulse"></span>
+            <span class="text-green-400">Connected</span>
+        `;
+    } else {
+        document.getElementById('apiStatus').innerHTML = `
+            <span class="w-2 h-2 rounded-full bg-red-500 mr-1"></span>
+            <span class="text-red-400">Disconnected</span>
+        `;
+    }
+    
+    // Update tool call count
+    const stats = toolLogger.getStats();
+    document.getElementById('toolCallCount').textContent = stats.totalCalls;
+}
+
+// Auto-update status
+setInterval(refreshStatus, 10000);
+
+// Update tool call count when new calls are made
+toolLogger.subscribe((entry) => {
+    const stats = toolLogger.getStats();
+    document.getElementById('toolCallCount').textContent = stats.totalCalls;
+});
+
+// Close sidebar on mobile when clicking overlay
+document.getElementById('sidebarOverlay')?.addEventListener('click', closeSidebar);
+document.getElementById('sidebarClose')?.addEventListener('click', closeSidebar);
+</script>

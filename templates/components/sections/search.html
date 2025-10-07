@@ -1,0 +1,456 @@
+<!-- Search & Index Section - Utilizes ALL search routes -->
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg shadow-lg p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold flex items-center">
+                    <i class="fas fa-search mr-3"></i>
+                    Search & Index Management
+                </h2>
+                <p class="text-purple-100 mt-1">Semantic search, text search, symbol lookup, and index management</p>
+            </div>
+            <button onclick="refreshSearchStats()" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-md">
+                <i class="fas fa-sync-alt mr-2"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Search Stats & Index Control -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <div class="text-3xl font-bold text-blue-600" id="indexedFiles">0</div>
+            <div class="text-sm text-gray-600">Indexed Files</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <div class="text-3xl font-bold text-purple-600" id="totalChunks">0</div>
+            <div class="text-sm text-gray-600">Code Chunks</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <div class="text-3xl font-bold text-pink-600" id="totalSymbols">0</div>
+            <div class="text-sm text-gray-600">Symbols</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-4">
+            <button onclick="rebuildSearchIndex()" class="w-full h-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-md font-medium transition-all shadow-sm">
+                <i class="fas fa-hammer mr-2"></i> Rebuild Index
+            </button>
+        </div>
+    </div>
+
+    <!-- Search Tabs -->
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <!-- Tab Headers -->
+        <div class="border-b border-gray-200">
+            <nav class="flex -mb-px">
+                <button onclick="switchSearchTab('semantic')" class="search-tab flex-1 py-4 px-6 text-center border-b-2 font-medium text-sm transition-colors border-purple-500 text-purple-600 bg-purple-50">
+                    <i class="fas fa-brain mr-2"></i> Semantic Search
+                </button>
+                <button onclick="switchSearchTab('text')" class="search-tab flex-1 py-4 px-6 text-center border-b-2 font-medium text-sm transition-colors border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                    <i class="fas fa-font mr-2"></i> Text Search
+                </button>
+                <button onclick="switchSearchTab('symbols')" class="search-tab flex-1 py-4 px-6 text-center border-b-2 font-medium text-sm transition-colors border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                    <i class="fas fa-code mr-2"></i> Symbol Search
+                </button>
+            </nav>
+        </div>
+
+        <!-- Semantic Search Tab -->
+        <div id="semantic-tab" class="search-tab-content p-6">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Semantic Query</label>
+                    <input type="text" id="semanticQuery" placeholder="e.g., function that processes user data" 
+                           class="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500">
+                    <p class="text-xs text-gray-500 mt-1">
+                        <i class="fas fa-lightbulb text-yellow-500"></i>
+                        Describe what you're looking for in natural language
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">File Pattern</label>
+                        <input type="text" id="semanticFilePattern" placeholder="*.py, *.js, etc." 
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Max Results</label>
+                        <input type="number" id="semanticMaxResults" value="10" min="1" max="50"
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                    </div>
+                </div>
+                
+                <button onclick="performSemanticSearch()" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 rounded-md font-medium transition-all shadow-md">
+                    <i class="fas fa-search mr-2"></i> Search Semantically
+                </button>
+            </div>
+        </div>
+
+        <!-- Text Search Tab -->
+        <div id="text-tab" class="search-tab-content hidden p-6">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Text to Find</label>
+                    <input type="text" id="textQuery" placeholder="Search for exact text..." 
+                           class="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">File Pattern</label>
+                        <input type="text" id="textFilePattern" value="*.py" placeholder="*.py" 
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                    </div>
+                    <div class="flex items-end">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" id="useRegex" class="rounded">
+                            <span class="text-sm text-gray-700">Use Regex</span>
+                        </label>
+                    </div>
+                    <div class="flex items-end">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" id="caseSensitive" class="rounded">
+                            <span class="text-sm text-gray-700">Case Sensitive</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <button onclick="performTextSearch()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-md font-medium transition-all shadow-md">
+                    <i class="fas fa-font mr-2"></i> Search Text
+                </button>
+            </div>
+        </div>
+
+        <!-- Symbol Search Tab -->
+        <div id="symbols-tab" class="search-tab-content hidden p-6">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Symbol Name</label>
+                    <input type="text" id="symbolQuery" placeholder="function, class, or variable name" 
+                           class="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500">
+                </div>
+                
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Symbol Type</label>
+                        <select id="symbolType" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                            <option value="">All Types</option>
+                            <option value="function">Function</option>
+                            <option value="class">Class</option>
+                            <option value="interface">Interface</option>
+                            <option value="type">Type</option>
+                            <option value="enum">Enum</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">File Pattern</label>
+                        <input type="text" id="symbolFilePattern" placeholder="*.py" 
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                    </div>
+                    <div class="flex items-end">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" id="fuzzyMatch" checked class="rounded">
+                            <span class="text-sm text-gray-700">Fuzzy Match</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <button onclick="performSymbolSearch()" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white py-3 rounded-md font-medium transition-all shadow-md">
+                    <i class="fas fa-code mr-2"></i> Search Symbols
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    <div id="searchResults" class="hidden bg-white shadow-lg rounded-lg overflow-hidden">
+        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                <i class="fas fa-list mr-2"></i>
+                Search Results
+                <span id="resultCount" class="ml-3 text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full"></span>
+            </h3>
+            <button onclick="clearSearchResults()" class="text-sm text-gray-500 hover:text-gray-700">
+                Clear Results
+            </button>
+        </div>
+        <div id="searchResultsContainer" class="p-6 max-h-[600px] overflow-y-auto">
+            <!-- Results populated here -->
+        </div>
+    </div>
+</div>
+
+<script>
+// Search Functions
+let currentSearchType = 'semantic';
+
+function initSearch() {
+    refreshSearchStats();
+}
+
+function switchSearchTab(tabName) {
+    currentSearchType = tabName;
+    
+    // Update tab headers
+    document.querySelectorAll('.search-tab').forEach(tab => {
+        tab.classList.remove('border-purple-500', 'border-blue-500', 'border-indigo-500', 'text-purple-600', 'text-blue-600', 'text-indigo-600', 'bg-purple-50', 'bg-blue-50', 'bg-indigo-50');
+        tab.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    document.querySelectorAll('.search-tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    // Show active tab
+    const activeTab = event.target.closest('.search-tab');
+    const colors = {
+        semantic: { border: 'border-purple-500', text: 'text-purple-600', bg: 'bg-purple-50' },
+        text: { border: 'border-blue-500', text: 'text-blue-600', bg: 'bg-blue-50' },
+        symbols: { border: 'border-indigo-500', text: 'text-indigo-600', bg: 'bg-indigo-50' }
+    };
+    
+    if (activeTab && colors[tabName]) {
+        activeTab.classList.add(colors[tabName].border, colors[tabName].text, colors[tabName].bg);
+        activeTab.classList.remove('border-transparent', 'text-gray-500');
+    }
+    
+    document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+}
+
+async function refreshSearchStats() {
+    const result = await apiRoutes.search.stats();
+    
+    if (result.success && result.data.result) {
+        const stats = result.data.result.index_stats || {};
+        
+        document.getElementById('indexedFiles').textContent = formatUtils.formatNumber(stats.total_files || 0);
+        document.getElementById('totalChunks').textContent = formatUtils.formatNumber(stats.total_chunks || 0);
+        document.getElementById('totalSymbols').textContent = formatUtils.formatNumber(stats.total_symbols || 0);
+    }
+}
+
+async function rebuildSearchIndex() {
+    if (!confirm('Rebuild the entire search index? This may take a few minutes for large codebases.')) {
+        return;
+    }
+    
+    showLoading('Rebuilding search index...');
+    
+    const result = await apiRoutes.search.index();
+    
+    hideLoading();
+    
+    if (result.success) {
+        notifications.success('Search index rebuilt successfully');
+        await refreshSearchStats();
+    }
+}
+
+async function performSemanticSearch() {
+    const query = document.getElementById('semanticQuery').value.trim();
+    
+    if (!query) {
+        notifications.warning('Please enter a search query');
+        return;
+    }
+    
+    showLoading('Performing semantic search...');
+    
+    const result = await apiRoutes.search.semantic(query, {
+        filePattern: document.getElementById('semanticFilePattern').value || null,
+        maxResults: parseInt(document.getElementById('semanticMaxResults').value) || 10
+    });
+    
+    hideLoading();
+    
+    if (result.success && result.data.result) {
+        displaySearchResults(result.data.result.results, 'semantic');
+    }
+}
+
+async function performTextSearch() {
+    const query = document.getElementById('textQuery').value.trim();
+    
+    if (!query) {
+        notifications.warning('Please enter text to search');
+        return;
+    }
+    
+    showLoading('Searching text...');
+    
+    const result = await apiRoutes.search.text(query, {
+        filePattern: document.getElementById('textFilePattern').value || '*.py',
+        useRegex: document.getElementById('useRegex').checked,
+        caseSensitive: document.getElementById('caseSensitive').checked,
+        maxResults: 50
+    });
+    
+    hideLoading();
+    
+    if (result.success && result.data.result) {
+        displaySearchResults(result.data.result.results, 'text');
+    }
+}
+
+async function performSymbolSearch() {
+    const query = document.getElementById('symbolQuery').value.trim();
+    
+    if (!query) {
+        notifications.warning('Please enter a symbol name');
+        return;
+    }
+    
+    showLoading('Searching symbols...');
+    
+    const result = await apiRoutes.search.symbols(query, {
+        symbolType: document.getElementById('symbolType').value || null,
+        filePattern: document.getElementById('symbolFilePattern').value || null,
+        fuzzy: document.getElementById('fuzzyMatch').checked,
+        maxResults: 20
+    });
+    
+    hideLoading();
+    
+    if (result.success && result.data.result) {
+        displaySearchResults(result.data.result.results, 'symbols');
+    }
+}
+
+function displaySearchResults(results, searchType) {
+    const container = document.getElementById('searchResultsContainer');
+    const resultsDiv = document.getElementById('searchResults');
+    const countSpan = document.getElementById('resultCount');
+    
+    // Store results globally to avoid path escaping issues
+    window.currentSearchResults = results;
+    
+    resultsDiv.classList.remove('hidden');
+    countSpan.textContent = `${results.length} results`;
+    
+    if (results.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-12 text-gray-500">
+                <i class="fas fa-search text-4xl mb-3"></i>
+                <p class="font-medium">No results found</p>
+                <p class="text-sm">Try adjusting your search query or filters</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Format results based on search type
+    let resultsHtml = '';
+    
+    if (searchType === 'semantic') {
+        resultsHtml = results.map((result, idx) => `
+            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between mb-2">
+                    <div class="flex-1">
+                        <div class="font-mono text-sm font-semibold text-blue-600">${result.file_path}</div>
+                        ${result.symbol_name ? `<div class="text-sm text-gray-700 mt-1">Symbol: <code class="bg-gray-100 px-2 py-0.5 rounded">${result.symbol_name}</code></div>` : ''}
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        Score: <span class="font-semibold text-purple-600">${(result.relevance_score * 100).toFixed(1)}%</span>
+                    </div>
+                </div>
+                <div class="text-sm text-gray-600 mb-2">
+                    <span class="bg-gray-100 px-2 py-0.5 rounded text-xs">${result.chunk_type}</span>
+                    <span class="text-gray-400 ml-2">Lines ${result.line_start}-${result.line_end}</span>
+                </div>
+                ${result.signature ? `<div class="font-mono text-xs text-gray-700 bg-gray-50 p-2 rounded mt-2">${result.signature}</div>` : ''}
+                ${result.docstring ? `<div class="text-xs text-gray-600 mt-2 italic">${formatUtils.truncate(result.docstring, 150)}</div>` : ''}
+                <div class="mt-3 flex space-x-2">
+                    <button onclick="viewCodeByIndex(${idx})" 
+                            class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">
+                        <i class="fas fa-eye mr-1"></i> View Code
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    } else if (searchType === 'text') {
+        resultsHtml = results.map((result, idx) => `
+            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="font-mono text-sm font-semibold text-blue-600 mb-2">${result.file_path}</div>
+                <div class="text-sm text-gray-600 mb-2">Line ${result.line_number}</div>
+                <pre class="bg-gray-50 p-3 rounded text-xs overflow-x-auto">${result.content}</pre>
+                <button onclick="viewCodeByIndex(${idx})" 
+                        class="mt-3 text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">
+                    <i class="fas fa-eye mr-1"></i> View in Context
+                </button>
+            </div>
+        `).join('');
+    } else if (searchType === 'symbols') {
+        resultsHtml = results.map((result, idx) => `
+            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between mb-2">
+                    <div>
+                        <div class="font-mono text-sm font-semibold text-indigo-600">${result.symbol_name}</div>
+                        <div class="text-xs text-gray-500 mt-1">${result.file_path}</div>
+                    </div>
+                    <span class="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full">${result.symbol_type}</span>
+                </div>
+                <div class="text-sm text-gray-600 mb-2">Lines ${result.line_start}-${result.line_end}</div>
+                ${result.signature ? `<div class="font-mono text-xs text-gray-700 bg-gray-50 p-2 rounded">${result.signature}</div>` : ''}
+                ${result.relevance_score ? `<div class="text-xs text-gray-500 mt-2">Match Score: ${(result.relevance_score * 100).toFixed(1)}%</div>` : ''}
+                <button onclick="viewCodeByIndex(${idx})" 
+                        class="mt-3 text-xs bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded">
+                    <i class="fas fa-eye mr-1"></i> View Code
+                </button>
+            </div>
+        `).join('');
+    }
+    
+    container.innerHTML = resultsHtml;
+}
+
+function clearSearchResults() {
+    document.getElementById('searchResults').classList.add('hidden');
+    document.getElementById('searchResultsContainer').innerHTML = '';
+}
+
+async function viewCodeByIndex(idx) {
+    const result = window.currentSearchResults[idx];
+    if (!result) {
+        notifications.error('Result not found');
+        return;
+    }
+    
+    const filePath = result.file_path;
+    const startLine = result.line_start || result.line_number;
+    const endLine = result.line_end || (startLine + 20);
+    
+    showLoading('Loading code...');
+    
+    const apiResult = await apiRoutes.files.read(filePath, {
+        startLine,
+        endLine,
+        withLineNumbers: true
+    });
+    
+    hideLoading();
+    
+    if (apiResult.success && apiResult.data.result) {
+        showCodePreviewModal(filePath, apiResult.data.result.content);
+    }
+}
+
+function showCodePreviewModal(filePath, content) {
+    // TODO: Create code preview modal
+    notifications.info(`Code preview: ${filePath}`);
+    console.log('Code content:', content);
+}
+
+// Enter key to search
+['semanticQuery', 'textQuery', 'symbolQuery'].forEach(id => {
+    const input = document.getElementById(id);
+    if (input) {
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                if (id === 'semanticQuery') performSemanticSearch();
+                else if (id === 'textQuery') performTextSearch();
+                else if (id === 'symbolQuery') performSymbolSearch();
+            }
+        });
+    }
+});
+</script>

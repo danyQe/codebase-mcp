@@ -1,0 +1,480 @@
+<!-- Dashboard Section - Main Landing Page -->
+<div class="space-y-6">
+    <!-- Welcome Banner -->
+    <div class="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg shadow-lg p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-3xl font-bold">Welcome to Codebase Manager</h2>
+                <p class="text-blue-100 mt-2">AI-Powered Development Dashboard - All systems operational</p>
+            </div>
+            <div class="text-right">
+                <div class="text-sm text-blue-100">Last Updated</div>
+                <div id="dashboardLastUpdate" class="text-lg font-semibold">Just now</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <button onclick="loadSection('search')" class="bg-white hover:bg-blue-50 shadow-md rounded-lg p-4 transition-all transform hover:scale-105">
+            <i class="fas fa-search text-purple-500 text-3xl mb-2"></i>
+            <div class="text-sm font-semibold text-gray-900">Search Code</div>
+        </button>
+        <button onclick="loadSection('files')" class="bg-white hover:bg-green-50 shadow-md rounded-lg p-4 transition-all transform hover:scale-105">
+            <i class="fas fa-file-code text-green-500 text-3xl mb-2"></i>
+            <div class="text-sm font-semibold text-gray-900">Edit Files</div>
+        </button>
+        <button onclick="loadSection('git')" class="bg-white hover:bg-orange-50 shadow-md rounded-lg p-4 transition-all transform hover:scale-105">
+            <i class="fas fa-code-branch text-orange-500 text-3xl mb-2"></i>
+            <div class="text-sm font-semibold text-gray-900">Git Sessions</div>
+        </button>
+        <button onclick="showToolHistory()" class="bg-white hover:bg-teal-50 shadow-md rounded-lg p-4 transition-all transform hover:scale-105">
+            <i class="fas fa-history text-teal-500 text-3xl mb-2"></i>
+            <div class="text-sm font-semibold text-gray-900">Tool History</div>
+        </button>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <!-- System Health -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-heartbeat text-green-500 mr-2"></i>
+                    System Health
+                </h3>
+            </div>
+            <div id="healthStatus" class="p-4 space-y-2 text-sm">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-chart-bar text-blue-500 mr-2"></i>
+                    Project Stats
+                </h3>
+            </div>
+            <div id="quickStats" class="p-4 space-y-2 text-sm">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+
+        <!-- Tool Activity -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-bolt text-purple-500 mr-2"></i>
+                    Tool Activity
+                </h3>
+            </div>
+            <div id="toolActivity" class="p-4 space-y-2 text-sm">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+
+        <!-- Current Session -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-orange-50 to-red-50 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-code-branch text-orange-500 mr-2"></i>
+                    Git Session
+                </h3>
+            </div>
+            <div id="currentSession" class="p-4 space-y-2 text-sm">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts & Activity -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <!-- Recent Tool Calls -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-history text-gray-700 mr-2"></i>
+                    Recent Tool Calls
+                </h3>
+                <button onclick="showToolHistory()" class="text-sm text-blue-500 hover:text-blue-700 font-medium">
+                    View All <i class="fas fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+            <div id="recentToolCalls" class="p-4 space-y-2 max-h-96 overflow-y-auto">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+
+        <!-- Activity Feed -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-stream text-gray-700 mr-2"></i>
+                    Activity Feed
+                </h3>
+                <button onclick="clearActivityFeed()" class="text-sm text-gray-500 hover:text-gray-700">
+                    Clear
+                </button>
+            </div>
+            <div id="activityFeed" class="p-4 space-y-2 max-h-96 overflow-y-auto">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Route Usage Statistics -->
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                <i class="fas fa-chart-line text-gray-700 mr-2"></i>
+                API Route Usage Statistics
+            </h3>
+        </div>
+        <div id="routeStats" class="p-6">
+            <!-- Populated dynamically -->
+        </div>
+    </div>
+</div>
+
+<script>
+// Dashboard Functions
+async function initDashboard() {
+    await refreshDashboard();
+    loadRecentToolCalls();
+    loadActivityFeed();
+    loadRouteStats();
+}
+
+async function refreshDashboard() {
+    showLoading('Refreshing dashboard...');
+    
+    try {
+        // Fetch all dashboard data in parallel
+        const [healthResult, statusResult, sessionResult] = await Promise.all([
+            apiRoutes.health.check(),
+            apiRoutes.health.status(),
+            apiRoutes.session.current()
+        ]);
+        
+        // Update system health
+        if (healthResult.success && healthResult.data.result) {
+            updateSystemHealth(healthResult.data.result);
+        }
+        
+        // Update project stats
+        if (statusResult.success && statusResult.data.result) {
+            updateProjectStats(statusResult.data.result);
+        }
+        
+        // Update session info
+        if (sessionResult.success && sessionResult.data.result) {
+            updateCurrentSession(sessionResult.data.result);
+        }
+        
+        // Update tool activity
+        updateToolActivity();
+        
+        // Update last refresh time
+        document.getElementById('dashboardLastUpdate').textContent = formatUtils.formatTime(new Date());
+        
+    } catch (error) {
+        notifications.error('Failed to refresh dashboard: ' + error.message);
+    } finally {
+        hideLoading();
+    }
+}
+
+function updateSystemHealth(data) {
+    const components = data.components || {};
+    const html = Object.entries(components).map(([service, status]) => {
+        const icon = status ? 'check-circle' : 'times-circle';
+        const color = status ? 'green' : 'red';
+        return `
+            <div class="flex items-center justify-between p-2 rounded-md hover:bg-gray-50 transition-colors">
+                <span class="text-gray-700">${formatServiceName(service)}</span>
+                <i class="fas fa-${icon} text-${color}-500"></i>
+            </div>
+        `;
+    }).join('');
+    
+    document.getElementById('healthStatus').innerHTML = html;
+}
+
+function updateProjectStats(data) {
+    const searchStats = data.search_stats || {};
+    const memoryStats = data.memory_stats || {};
+    
+    const html = `
+        <div class="flex items-center justify-between p-2 rounded-md hover:bg-gray-50 transition-colors">
+            <span class="text-gray-600">Files:</span>
+            <span class="font-bold text-gray-900">${formatUtils.formatNumber(searchStats.total_files || 0)}</span>
+        </div>
+        <div class="flex items-center justify-between p-2 rounded-md hover:bg-gray-50 transition-colors">
+            <span class="text-gray-600">Code Chunks:</span>
+            <span class="font-bold text-gray-900">${formatUtils.formatNumber(searchStats.total_chunks || 0)}</span>
+        </div>
+        <div class="flex items-center justify-between p-2 rounded-md hover:bg-gray-50 transition-colors">
+            <span class="text-gray-600">Symbols:</span>
+            <span class="font-bold text-gray-900">${formatUtils.formatNumber(searchStats.total_symbols || 0)}</span>
+        </div>
+        <div class="flex items-center justify-between p-2 rounded-md hover:bg-gray-50 transition-colors">
+            <span class="text-gray-600">Memories:</span>
+            <span class="font-bold text-gray-900">${formatUtils.formatNumber(memoryStats.total_memories || 0)}</span>
+        </div>
+    `;
+    
+    document.getElementById('quickStats').innerHTML = html;
+    
+    // Update header stats
+    appState.update({
+        'stats.projectFiles': searchStats.total_files || 0,
+        'stats.codeLines': searchStats.total_lines || 0,
+        'stats.totalMemories': memoryStats.total_memories || 0
+    });
+}
+
+function updateCurrentSession(data) {
+    const branch = data.current_branch || 'unknown';
+    const isSession = data.is_session_branch || false;
+    
+    const html = `
+        <div class="space-y-3">
+            <div class="flex items-center justify-between p-2 rounded-md bg-gray-50">
+                <span class="text-gray-600">Current Branch:</span>
+                <span class="font-mono font-bold ${isSession ? 'text-green-600' : 'text-gray-900'}">${branch}</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-md bg-gray-50">
+                <span class="text-gray-600">Session Type:</span>
+                <span class="font-semibold ${isSession ? 'text-green-600' : 'text-gray-600'}">
+                    ${isSession ? '🟢 Active Session' : '⚪ Regular Branch'}
+                </span>
+            </div>
+            ${isSession ? `
+                <button onclick="loadSection('git')" class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-2 rounded-md text-sm font-medium transition-all shadow-md">
+                    <i class="fas fa-cog mr-2"></i> Manage Session
+                </button>
+            ` : `
+                <button onclick="startQuickSession()" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-2 rounded-md text-sm font-medium transition-all shadow-md">
+                    <i class="fas fa-play mr-2"></i> Start Session
+                </button>
+            `}
+        </div>
+    `;
+    
+    document.getElementById('currentSession').innerHTML = html;
+    
+    appState.update({
+        'currentBranch': branch,
+        'isSessionBranch': isSession
+    });
+}
+
+function updateToolActivity() {
+    const stats = toolLogger.getStats();
+    
+    const html = `
+        <div class="flex items-center justify-between p-2 rounded-md hover:bg-gray-50 transition-colors">
+            <span class="text-gray-600">Total Calls:</span>
+            <span class="font-bold text-purple-600">${formatUtils.formatNumber(stats.totalCalls)}</span>
+        </div>
+        <div class="flex items-center justify-between p-2 rounded-md hover:bg-gray-50 transition-colors">
+            <span class="text-gray-600">Success:</span>
+            <span class="font-bold text-green-600">${formatUtils.formatNumber(stats.successCount)}</span>
+        </div>
+        <div class="flex items-center justify-between p-2 rounded-md hover:bg-gray-50 transition-colors">
+            <span class="text-gray-600">Errors:</span>
+            <span class="font-bold text-red-600">${formatUtils.formatNumber(stats.errorCount)}</span>
+        </div>
+        <div class="flex items-center justify-between p-2 rounded-md hover:bg-gray-50 transition-colors">
+            <span class="text-gray-600">Success Rate:</span>
+            <span class="font-bold text-blue-600">${stats.successRate}%</span>
+        </div>
+    `;
+    
+    document.getElementById('toolActivity').innerHTML = html;
+}
+
+function loadRecentToolCalls() {
+    const recent = toolLogger.getHistory({}).slice(0, 10);
+    const container = document.getElementById('recentToolCalls');
+    
+    if (recent.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-inbox text-3xl mb-2"></i>
+                <p class="text-sm">No tool calls yet</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = recent.map(call => {
+        const statusColor = call.status === 'success' ? 'green' : 'red';
+        const statusIcon = call.status === 'success' ? 'check' : 'times';
+        
+        return `
+            <div class="flex items-center justify-between p-3 rounded-md hover:bg-gray-50 transition-colors border border-gray-100">
+                <div class="flex items-center space-x-3 flex-1 min-w-0">
+                    <i class="fas fa-${statusIcon} text-${statusColor}-500"></i>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-mono text-xs text-gray-900 truncate">${call.method} ${call.route}</div>
+                        <div class="text-xs text-gray-500">${formatUtils.formatRelativeTime(call.timestamp)}</div>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-500">${formatUtils.formatDuration(call.duration)}</div>
+            </div>
+        `;
+    }).join('');
+}
+
+function loadActivityFeed() {
+    const feed = generateActivityFeed();
+    const container = document.getElementById('activityFeed');
+    
+    if (feed.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-stream text-3xl mb-2"></i>
+                <p class="text-sm">No recent activity</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = feed.map(activity => `
+        <div class="flex items-start space-x-3 p-2 rounded-md hover:bg-gray-50 transition-colors">
+            <i class="fas fa-${activity.icon} text-${activity.color}-500 mt-1"></i>
+            <div class="flex-1">
+                <div class="text-sm text-gray-900">${activity.message}</div>
+                <div class="text-xs text-gray-500">${formatUtils.formatRelativeTime(activity.timestamp)}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function generateActivityFeed() {
+    // Generate activity from tool logger history
+    const history = toolLogger.getHistory({}).slice(0, 20);
+    
+    return history.map(call => ({
+        icon: call.status === 'success' ? 'check-circle' : 'exclamation-circle',
+        color: call.status === 'success' ? 'green' : 'red',
+        message: `${call.userAction}: ${call.route.split('/').pop() || 'API Call'}`,
+        timestamp: call.timestamp
+    }));
+}
+
+function loadRouteStats() {
+    const stats = toolLogger.getStats();
+    const routeStats = stats.routeStats || {};
+    
+    const container = document.getElementById('routeStats');
+    
+    if (Object.keys(routeStats).length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-chart-line text-4xl mb-2"></i>
+                <p>No route statistics available yet</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Sort by call count
+    const sorted = Object.entries(routeStats).sort((a, b) => b[1].count - a[1].count);
+    
+    container.innerHTML = `
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Route</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Calls</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Errors</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Duration</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Success Rate</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    ${sorted.slice(0, 15).map(([route, stat]) => {
+                        const successRate = stat.count > 0 ? ((stat.count - stat.errors) / stat.count * 100).toFixed(1) : 0;
+                        const rateColor = successRate >= 90 ? 'green' : successRate >= 70 ? 'yellow' : 'red';
+                        
+                        return `
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 text-sm font-mono text-gray-900">${route}</td>
+                                <td class="px-6 py-4 text-sm text-gray-900">${stat.count}</td>
+                                <td class="px-6 py-4 text-sm ${stat.errors > 0 ? 'text-red-600 font-semibold' : 'text-gray-500'}">${stat.errors}</td>
+                                <td class="px-6 py-4 text-sm text-gray-900">${formatUtils.formatDuration(stat.avgDuration)}</td>
+                                <td class="px-6 py-4 text-sm">
+                                    <span class="px-2 py-1 rounded-full text-xs font-medium bg-${rateColor}-100 text-${rateColor}-800">
+                                        ${successRate}%
+                                    </span>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+function clearActivityFeed() {
+    document.getElementById('activityFeed').innerHTML = `
+        <div class="text-center py-8 text-gray-500">
+            <p class="text-sm">Activity feed cleared</p>
+        </div>
+    `;
+    notifications.info('Activity feed cleared');
+}
+
+async function startQuickSession() {
+    const sessionName = prompt('Enter session name (leave empty for auto-generated):');
+    
+    if (sessionName === null) return; // Cancelled
+    
+    const result = await apiRoutes.session.start(sessionName || null);
+    
+    if (result.success) {
+        notifications.success('Session started successfully');
+        await refreshDashboard();
+    }
+}
+
+// Auto-refresh dashboard every 30 seconds
+let dashboardRefreshInterval;
+
+eventBus.on('sectionChanged', (section) => {
+    if (section === 'dashboard') {
+        // Start auto-refresh when on dashboard
+        dashboardRefreshInterval = setInterval(() => {
+            if (appState.get('preferences.autoRefresh')) {
+                refreshDashboard();
+            }
+        }, 30000);
+    } else {
+        // Stop auto-refresh when leaving dashboard
+        if (dashboardRefreshInterval) {
+            clearInterval(dashboardRefreshInterval);
+        }
+    }
+});
+
+// Update recent calls when new tool calls are made
+toolLogger.subscribe(() => {
+    if (appState.get('currentSection') === 'dashboard') {
+        loadRecentToolCalls();
+        updateToolActivity();
+        loadRouteStats();
+    }
+});
+
+function formatServiceName(service) {
+    return service.split('_').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+}
+</script>

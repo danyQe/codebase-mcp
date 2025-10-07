@@ -1,0 +1,191 @@
+<!-- Project Explorer Section -->
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="bg-gradient-to-r from-indigo-500 to-blue-600 rounded-lg shadow-lg p-6 text-white">
+        <h2 class="text-2xl font-bold flex items-center">
+            <i class="fas fa-project-diagram mr-3"></i>
+            Project Explorer
+        </h2>
+        <p class="text-indigo-100 mt-1">View project structure, dependencies, and metadata</p>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-3 gap-4">
+        <button onclick="getProjectInfo()" class="bg-white hover:shadow-lg shadow-md rounded-lg p-6 transition-all">
+            <i class="fas fa-info-circle text-blue-500 text-3xl mb-2"></i>
+            <div class="text-sm font-semibold text-gray-900">Project Info</div>
+        </button>
+        <button onclick="getProjectStructure()" class="bg-white hover:shadow-lg shadow-md rounded-lg p-6 transition-all">
+            <i class="fas fa-sitemap text-green-500 text-3xl mb-2"></i>
+            <div class="text-sm font-semibold text-gray-900">Structure</div>
+        </button>
+        <button onclick="getProjectDependencies()" class="bg-white hover:shadow-lg shadow-md rounded-lg p-6 transition-all">
+            <i class="fas fa-box text-purple-500 text-3xl mb-2"></i>
+            <div class="text-sm font-semibold text-gray-900">Dependencies</div>
+        </button>
+    </div>
+
+    <!-- Project Display -->
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h3 id="projectDisplayTitle" class="text-lg font-semibold text-gray-900">
+                Project Information
+            </h3>
+            <button onclick="exportProjectData()" class="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">
+                <i class="fas fa-download mr-1"></i> Export
+            </button>
+        </div>
+        <div id="projectDisplay" class="p-6 bg-gray-50 font-mono text-sm overflow-auto max-h-[600px]">
+            <div class="text-center py-12 text-gray-500">
+                <i class="fas fa-folder-open text-4xl mb-3"></i>
+                <p>Click a button above to view project details</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentProjectData = null;
+
+async function getProjectInfo() {
+    showLoading('Loading project info...');
+    const result = await apiRoutes.project.info();
+    hideLoading();
+    
+    if (result.success && result.data.result) {
+        currentProjectData = result.data.result;
+        const data = result.data.result;
+        
+        document.getElementById('projectDisplayTitle').textContent = 'Project Information';
+        document.getElementById('projectDisplay').innerHTML = `
+            <div class="space-y-4">
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="text-lg font-semibold text-gray-900 mb-3">Overview</div>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-600">Directory:</span>
+                            <div class="font-mono text-gray-900 mt-1">${data.working_directory}</div>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Total Files:</span>
+                            <div class="font-semibold text-blue-600 mt-1">${formatUtils.formatNumber(data.summary?.total_files || 0)}</div>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Total Size:</span>
+                            <div class="font-semibold text-green-600 mt-1">${data.summary?.total_size || '0B'}</div>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Code Lines:</span>
+                            <div class="font-semibold text-purple-600 mt-1">${data.summary?.total_lines || '0'}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                ${data.project_files?.length > 0 ? `
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <div class="text-lg font-semibold text-gray-900 mb-3">Project Files</div>
+                        <div class="flex flex-wrap gap-2">
+                            ${data.project_files.map(f => `
+                                <span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">${f}</span>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+                
+                ${data.file_types?.length > 0 ? `
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <div class="text-lg font-semibold text-gray-900 mb-3">Top File Types</div>
+                        <div class="space-y-2">
+                            ${data.file_types.slice(0, 10).map(([ext, count]) => `
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-700">${ext}</span>
+                                    <span class="font-semibold text-gray-900">${count} files</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+        
+        notifications.success('Project info loaded');
+    }
+}
+
+async function getProjectStructure() {
+    showLoading('Loading project structure...');
+    const result = await apiRoutes.project.structure(6);
+    hideLoading();
+    
+    if (result.success && result.data.result) {
+        currentProjectData = result.data.result;
+        
+        document.getElementById('projectDisplayTitle').textContent = 'Project Structure Tree';
+        document.getElementById('projectDisplay').innerHTML = `
+            <pre class="text-xs">${result.data.result.tree_structure || 'No structure data'}</pre>
+        `;
+        
+        notifications.success('Project structure loaded');
+    }
+}
+
+async function getProjectDependencies() {
+    showLoading('Loading dependencies...');
+    const result = await apiRoutes.project.dependencies();
+    hideLoading();
+    
+    if (result.success && result.data.result) {
+        currentProjectData = result.data.result;
+        const deps = result.data.result.dependencies || {};
+        
+        document.getElementById('projectDisplayTitle').textContent = 'Project Dependencies';
+        
+        if (Object.keys(deps).length === 0) {
+            document.getElementById('projectDisplay').innerHTML = `
+                <div class="text-center py-12 text-gray-500">
+                    <i class="fas fa-box-open text-4xl mb-3"></i>
+                    <p>No dependency files found</p>
+                </div>
+            `;
+            return;
+        }
+        
+        let html = '<div class="space-y-4">';
+        
+        Object.entries(deps).forEach(([file, content]) => {
+            html += `
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
+                        <i class="fas fa-file text-purple-500 mr-2"></i>
+                        ${file}
+                    </div>
+                    <pre class="text-xs text-gray-700 bg-gray-50 p-3 rounded overflow-x-auto max-h-60">${content.substring(0, 1000)}${content.length > 1000 ? '\n... (truncated)' : ''}</pre>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        document.getElementById('projectDisplay').innerHTML = html;
+        
+        notifications.success('Dependencies loaded');
+    }
+}
+
+function exportProjectData() {
+    if (!currentProjectData) {
+        notifications.warning('No project data to export');
+        return;
+    }
+    
+    const content = JSON.stringify(currentProjectData, null, 2);
+    const blob = new Blob([content], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `project-data-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    notifications.success('Project data exported');
+}
+</script>

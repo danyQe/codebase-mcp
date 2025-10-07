@@ -1,0 +1,2311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codebase MCP - Documentation</title>
+    <meta name="description" content="Turn any LLM into your personal coding assistant with Codebase MCP - Privacy-first AI development assistant via Model Context Protocol">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #10b981;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --border: #e5e7eb;
+            --sidebar-width: 280px;
+            --header-height: 64px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 2rem;
+            z-index: 100;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .header-logo svg {
+            width: 32px;
+            height: 32px;
+            fill: var(--primary);
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px;
+            margin-right: 1rem;
+        }
+
+        .hamburger span {
+            width: 24px;
+            height: 3px;
+            background: var(--text-primary);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .header-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-outline {
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: var(--sidebar-width);
+            height: calc(100vh - var(--header-height));
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 2rem 0;
+            z-index: 50;
+            transition: transform 0.3s;
+        }
+
+        .sidebar-section {
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-title {
+            padding: 0 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin: 0.25rem 0;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            padding: 0.5rem 1.5rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+
+        .sidebar-nav a:hover {
+            background: var(--bg-tertiary);
+            color: var(--primary);
+        }
+
+        .sidebar-nav a.active {
+            background: var(--primary);
+            color: white;
+            font-weight: 500;
+        }
+
+        .sidebar-nav-sub {
+            list-style: none;
+            padding-left: 1rem;
+        }
+
+        .sidebar-nav-sub a {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        /* Main Content */
+        .main {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--header-height);
+            padding: 3rem;
+            max-width: 900px;
+        }
+
+        .content-section {
+            margin-bottom: 4rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .tagline {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge-blue {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-green {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-yellow {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Code Blocks */
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        code {
+            background: var(--bg-tertiary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        pre code {
+            background: transparent;
+            padding: 0;
+        }
+
+        /* Alert Boxes */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            border-color: #2563eb;
+            color: #1e40af;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 1rem 0 1rem 2rem;
+        }
+
+        li {
+            margin: 0.5rem 0;
+        }
+
+        /* Links */
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 2rem 1.5rem;
+            }
+
+            .header-actions .btn-outline {
+                display: none;
+            }
+        }
+
+        /* Scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="hamburger" onclick="toggleSidebar()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <a href="#" class="header-logo">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+            </svg>
+            Codebase MCP
+        </a>
+        <div class="header-actions">
+            <a href="https://github.com/danyQe/codebase-mcp" class="btn btn-outline" target="_blank">GitHub</a>
+            <a href="#quick-start" class="btn btn-primary">Get Started</a>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-title">Getting Started</div>
+            <ul class="sidebar-nav">
+                <li><a href="#introduction" class="active">Introduction</a></li>
+                <li><a href="#why-codebase-mcp">Why Codebase MCP?</a></li>
+                <li><a href="#quick-start">Quick Start</a></li>
+                <li><a href="#installation">Installation</a></li>
+                <li><a href="#configuration">Configuration</a></li>
+            </ul>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-title">Tools</div>
+            <ul class="sidebar-nav">
+                <li><a href="#tools-overview">Overview</a></li>
+                <li>
+                    <ul class="sidebar-nav-sub">
+                        <li><a href="#tool-session">session_tool</a></li>
+                        <li><a href="#tool-memory">memory_tool</a></li>
+                        <li><a href="#tool-git">git_tool</a></li>
+                        <li><a href="#tool-write">write_tool</a></li>
+                        <li><a href="#tool-edit">edit_tool</a></li>
+                        <li><a href="#tool-search">search_tool</a></li>
+                        <li><a href="#tool-read">read_code_tool</a></li>
+                        <li><a href="#tool-project">project_structure_tool</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-title">API Reference</div>
+            <ul class="sidebar-nav">
+                <li><a href="#api-overview">API Overview</a></li>
+                <li><a href="#api-endpoints">Endpoints</a></li>
+                <li><a href="#api-authentication">Authentication</a></li>
+            </ul>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-title">Advanced</div>
+            <ul class="sidebar-nav">
+                <li><a href="#architecture">Architecture</a></li>
+                <li><a href="#prompt-engineering">Prompt Engineering</a></li>
+                <li><a href="#best-practices">Best Practices</a></li>
+                <li><a href="#examples">Examples</a></li>
+                <li><a href="#troubleshooting">Troubleshooting</a></li>
+            </ul>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-title">Contributing</div>
+            <ul class="sidebar-nav">
+                <li><a href="#contributing">How to Contribute</a></li>
+                <li><a href="#development-setup">Development Setup</a></li>
+                <li><a href="#roadmap">Roadmap</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Introduction -->
+        <section id="introduction" class="content-section">
+            <h1>Codebase MCP</h1>
+            <p class="tagline">Turn any LLM into your personal coding assistant</p>
+            
+            <div style="margin: 2rem 0;">
+                <span class="badge badge-blue">v1.0.0-beta</span>
+                <span class="badge badge-green">Apache 2.0 License</span>
+                <span class="badge badge-blue">Python 3.11+</span>
+                <span class="badge badge-green">MCP Compatible</span>
+            </div>
+
+            <p><strong>Codebase MCP</strong> is an open-source, privacy-first AI development assistant that connects your LLM (like Claude) to your codebase through the Model Context Protocol (MCP). Build production-ready applications without expensive coding assistant subscriptions.</p>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <div class="feature-title">Privacy-First</div>
+                    <div class="feature-desc">All processing happens locally except optional AI-assisted editing</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <div class="feature-title">Cost-Effective</div>
+                    <div class="feature-desc">No additional subscriptions beyond your LLM access</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔌</div>
+                    <div class="feature-title">LLM-Agnostic</div>
+                    <div class="feature-desc">Works with any MCP-compatible LLM</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <div class="feature-title">Lightweight</div>
+                    <div class="feature-desc">MCP proxy architecture keeps Claude Desktop fast</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🧠</div>
+                    <div class="feature-title">Persistent Memory</div>
+                    <div class="feature-desc">Context persists across sessions using semantic search</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📦</div>
+                    <div class="feature-title">Production-Ready</div>
+                    <div class="feature-desc">Built for real-world Python and React development</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Why Codebase MCP -->
+        <section id="why-codebase-mcp" class="content-section">
+            <h2>Why Codebase MCP?</h2>
+            
+            <h3>The Problem</h3>
+            <p>Modern AI coding assistants like Cursor and Windsurf are powerful but come with significant costs:</p>
+            <ul>
+                <li>💸 <strong>Double subscriptions</strong> - Pay for Claude AND a separate coding assistant ($20-40/month)</li>
+                <li>☁️ <strong>Cloud-dependent</strong> - Your code is processed on remote servers</li>
+                <li>🔒 <strong>Vendor lock-in</strong> - Limited to specific LLM providers</li>
+                <li>⚙️ <strong>Limited control</strong> - Can't customize or extend functionality</li>
+            </ul>
+
+            <h3>The Solution</h3>
+            <p>Codebase MCP changes the game by turning YOUR existing LLM into a full-featured coding assistant:</p>
+            <ul>
+                <li>✅ <strong>Use what you already pay for</strong> - Just need Claude subscription (or any MCP-compatible LLM)</li>
+                <li>✅ <strong>Privacy-first architecture</strong> - Processing happens locally with local embeddings</li>
+                <li>✅ <strong>Open source & extensible</strong> - Modify, enhance, and contribute</li>
+                <li>✅ <strong>LLM-agnostic design</strong> - Connect any LLM via Model Context Protocol</li>
+                <li>✅ <strong>Production-ready</strong> - Quality scoring, auto-formatting, dependency checking</li>
+            </ul>
+
+            <div class="alert alert-info">
+                <strong>💡 Note:</strong> The only exception to local-only processing is the optional AI-assisted editing feature, which uses Google's free Gemini API. Only the file being edited is sent to Gemini—no broader project context is shared. Contributors can easily replace this with local LLMs if desired.
+            </div>
+
+            <h3>Perfect For</h3>
+            <ul>
+                <li>🎯 <strong>Solo developers</strong> who want AI assistance without breaking the bank</li>
+                <li>🏢 <strong>Small teams</strong> who need privacy-conscious development tools</li>
+                <li>🔐 <strong>Privacy-focused developers</strong> working on sensitive codebases</li>
+                <li>🛠️ <strong>Python & React developers</strong> building production applications</li>
+                <li>📚 <strong>Projects under 20,000 lines</strong> - optimal performance range</li>
+            </ul>
+        </section>
+
+        <!-- Quick Start -->
+        <section id="quick-start" class="content-section">
+            <h2>Quick Start</h2>
+            
+            <h3>Prerequisites</h3>
+            <ul>
+                <li>Python 3.11 or higher</li>
+                <li>Claude Desktop (or any MCP-compatible LLM client)</li>
+                <li>Git installed and configured</li>
+                <li>Gemini API key (free tier) - <a href="https://aistudio.google.com/app/apikey" target="_blank">Get one here</a></li>
+            </ul>
+
+            <h3>5-Minute Setup</h3>
+
+            <h4>1. Clone & Install</h4>
+            <pre><code># Clone repository
+git clone https://github.com/danyQe/codebase-mcp.git
+cd codebase-mcp
+
+# Install using uv (recommended)
+pip install uv
+uv venv
+uv pip install -r requirements.txt
+
+# Install code formatters globally
+pip install black ruff</code></pre>
+
+            <h4>2. Configure Environment</h4>
+            <pre><code># Create .env file
+cp .env.example .env
+
+# Edit .env and add your Gemini API key
+GEMINI_API_KEY=your_api_key_here</code></pre>
+
+            <h4>3. Configure Claude Desktop</h4>
+            <p>Add to your <code>claude_desktop_config.json</code>:</p>
+            <pre><code>{
+  "mcpServers": {
+    "codebase-manager": {
+      "command": "C:\\path\\to\\codebase-mcp\\.venv\\Scripts\\python.exe",
+      "args": [
+        "C:\\path\\to\\codebase-mcp\\mcp_server.py"
+      ]
+    }
+  }
+}</code></pre>
+
+            <div class="alert alert-warning">
+                <strong>⚠️ Important:</strong> Use absolute paths and adjust for your operating system (forward slashes on macOS/Linux, backslashes on Windows).
+            </div>
+
+            <h4>4. Start FastAPI Server</h4>
+            <pre><code># Start server with your project directory
+python main.py /path/to/your/project
+
+# With auto-reload (development)
+python main.py /path/to/your/project --reload</code></pre>
+
+            <p>Server runs on <code>http://localhost:6789</code></p>
+
+            <h4>5. Restart Claude Desktop</h4>
+            <p>Restart Claude Desktop to load the MCP server. You should now see Codebase MCP tools available!</p>
+
+            <div class="alert alert-success">
+                <strong>✅ You're ready!</strong> Try asking Claude: "Start a new development session for my project"
+            </div>
+        </section>
+
+        <!-- Installation -->
+        <section id="installation" class="content-section">
+            <h2>Installation</h2>
+            
+            <h3>System Requirements</h3>
+            <table>
+                <tr>
+                    <th>Requirement</th>
+                    <th>Minimum</th>
+                    <th>Recommended</th>
+                </tr>
+                <tr>
+                    <td>Python</td>
+                    <td>3.11</td>
+                    <td>3.11+</td>
+                </tr>
+                <tr>
+                    <td>RAM</td>
+                    <td>4 GB</td>
+                    <td>8 GB+</td>
+                </tr>
+                <tr>
+                    <td>Storage</td>
+                    <td>500 MB</td>
+                    <td>1 GB+</td>
+                </tr>
+                <tr>
+                    <td>OS</td>
+                    <td>Windows 10</td>
+                    <td>Windows 11 / macOS / Linux</td>
+                </tr>
+            </table>
+
+            <h3>Installation Methods</h3>
+
+            <h4>Method 1: Using uv (Recommended)</h4>
+            <pre><code># Install uv package manager
+pip install uv
+
+# Clone repository
+git clone https://github.com/danyQe/codebase-mcp.git
+cd codebase-mcp
+
+# Create virtual environment and install
+uv venv
+uv pip install -r requirements.txt
+
+# Install formatters globally
+pip install black ruff</code></pre>
+
+            <h4>Method 2: Using pip</h4>
+            <pre><code># Clone repository
+git clone https://github.com/danyQe/codebase-mcp.git
+cd codebase-mcp
+
+# Create virtual environment
+python -m venv .venv
+
+# Activate virtual environment
+# Windows:
+.venv\Scripts\activate
+# macOS/Linux:
+source .venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Install formatters globally
+pip install black ruff</code></pre>
+
+            <h4>Method 3: Docker (Coming Soon)</h4>
+            <p>Docker support is planned for a future release.</p>
+
+            <h3>Verify Installation</h3>
+            <pre><code># Test FastAPI server
+python main.py /path/to/test/project
+
+# Check if server is running
+curl http://localhost:6789/health</code></pre>
+        </section>
+
+        <!-- Configuration -->
+        <section id="configuration" class="content-section">
+            <h2>Configuration</h2>
+            
+            <h3>Environment Variables</h3>
+            <p>Create a <code>.env</code> file in the project root:</p>
+            <pre><code># Gemini API Configuration (Required for edit_tool)
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# Server Configuration (Optional)
+HOST=0.0.0.0
+PORT=6789
+
+# Working Directory (Optional - can be set via command line)
+WORKING_DIR=/path/to/your/project
+
+# Logging (Optional)
+LOG_LEVEL=INFO</code></pre>
+
+            <h3>Claude Desktop Configuration</h3>
+            <p><strong>Windows:</strong> <code>%APPDATA%\Claude\claude_desktop_config.json</code></p>
+            <p><strong>macOS:</strong> <code>~/Library/Application Support/Claude/claude_desktop_config.json</code></p>
+            <p><strong>Linux:</strong> <code>~/.config/Claude/claude_desktop_config.json</code></p>
+
+            <pre><code>{
+  "mcpServers": {
+    "codebase-manager": {
+      "command": "/absolute/path/to/.venv/Scripts/python.exe",
+      "args": [
+        "/absolute/path/to/mcp_server.py"
+      ]
+    }
+  }
+}</code></pre>
+
+            <div class="alert alert-warning">
+                <strong>⚠️ Path Requirements:</strong>
+                <ul>
+                    <li>Always use <strong>absolute paths</strong></li>
+                    <li>Windows: Use double backslashes <code>\\</code> or forward slashes <code>/</code></li>
+                    <li>macOS/Linux: Use forward slashes <code>/</code></li>
+                    <li>Point to the Python executable in your virtual environment</li>
+                </ul>
+            </div>
+
+            <h3>Git Configuration</h3>
+            <p>Codebase MCP uses two separate git directories:</p>
+            <ul>
+                <li><code>.git/</code> - Your personal git repository (user-managed)</li>
+                <li><code>.codebase/</code> - AI-tracked changes (managed by Codebase MCP)</li>
+            </ul>
+
+            <div class="alert alert-info">
+                <strong>💡 Why separate directories?</strong> This separation keeps AI-generated changes organized and doesn't interfere with your personal git workflow. You maintain full control over what gets committed to your actual repository.
+            </div>
+
+            <h3>Rate Limits (Gemini API)</h3>
+            <p>The free Gemini API tier has the following limits:</p>
+            <ul>
+                <li>15 requests per minute (RPM)</li>
+                <li>250,000 tokens per minute (TPM)</li>
+                <li>1,000 requests per day (RPD)</li>
+            </ul>
+            <p>Codebase MCP automatically handles rate limiting with exponential backoff.</p>
+        </section>
+
+        <!-- Tools Overview -->
+        <section id="tools-overview" class="content-section">
+            <h2>Tools Overview</h2>
+            
+            <p>Codebase MCP provides 13+ specialized tools accessible via the Model Context Protocol. Each tool is designed for specific development tasks.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tool</th>
+                        <th>Purpose</th>
+                        <th>Key Features</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>session_tool</code></td>
+                        <td>Session management</td>
+                        <td>Branch creation, isolation, merging</td>
+                    </tr>
+                    <tr>
+                        <td><code>memory_tool</code></td>
+                        <td>Knowledge persistence</td>
+                        <td>Store learnings, search context</td>
+                    </tr>
+                    <tr>
+                        <td><code>git_tool</code></td>
+                        <td>Git operations</td>
+                        <td>Status, commit, diff, log, branches</td>
+                    </tr>
+                    <tr>
+                        <td><code>write_tool</code></td>
+                        <td>Intelligent writing</td>
+                        <td>Format, quality check, auto-commit</td>
+                    </tr>
+                    <tr>
+                        <td><code>edit_tool</code></td>
+                        <td>AI-assisted editing</td>
+                        <td>Gemini-powered, contextual edits</td>
+                    </tr>
+                    <tr>
+                        <td><code>search_tool</code></td>
+                        <td>Code search</td>
+                        <td>Semantic, fuzzy, text, symbol search</td>
+                    </tr>
+                    <tr>
+                        <td><code>read_code_tool</code></td>
+                        <td>Read files/symbols</td>
+                        <td>Line ranges, symbols, whole files</td>
+                    </tr>
+                    <tr>
+                        <td><code>project_structure_tool</code></td>
+                        <td>Project analysis</td>
+                        <td>Structure, dependencies, stats</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Tool Categories</h3>
+            
+            <h4>🔧 Development Workflow</h4>
+            <ul>
+                <li><code>session_tool</code> - Manage isolated development sessions</li>
+                <li><code>git_tool</code> - Full git integration</li>
+                <li><code>project_structure_tool</code> - Understand project organization</li>
+            </ul>
+
+            <h4>📝 Code Operations</h4>
+            <ul>
+                <li><code>write_tool</code> - Write new code with quality checks</li>
+                <li><code>edit_tool</code> - AI-assisted code editing</li>
+                <li><code>read_code_tool</code> - Read files and symbols</li>
+            </ul>
+
+            <h4>🔍 Code Discovery</h4>
+            <ul>
+                <li><code>search_tool</code> - Multi-mode code search</li>
+                <li><code>list_file_symbols_tool</code> - List all symbols in files</li>
+                <li><code>read_symbol_from_database</code> - Find symbols across codebase</li>
+            </ul>
+
+            <h4>🧠 Intelligence</h4>
+            <ul>
+                <li><code>memory_tool</code> - Persistent knowledge storage</li>
+                <li><code>code_analysis_tool</code> - Syntax and lint analysis</li>
+            </ul>
+        </section>
+
+        <!-- Individual Tool Documentation -->
+        <section id="tool-session" class="content-section">
+            <h3>session_tool</h3>
+            <p><strong>Purpose:</strong> Manage isolated development sessions with automatic branching</p>
+
+            <h4>Operations</h4>
+            <ul>
+                <li><code>start</code> - Create new session branch</li>
+                <li><code>end</code> - End session and return to main</li>
+                <li><code>switch</code> - Switch to existing session</li>
+                <li><code>list</code> - List all session branches</li>
+                <li><code>merge</code> - Merge session into main</li>
+                <li><code>current</code> - Show current session status</li>
+                <li><code>delete</code> - Delete a session branch</li>
+            </ul>
+
+            <h4>Example Usage</h4>
+            <pre><code># Start a new session
+session_tool(operation="start", session_name="feature-user-auth")
+
+# Check current session
+session_tool(operation="current")
+
+# End session with auto-merge
+session_tool(operation="end", auto_merge=True)
+
+# Delete old session
+session_tool(operation="delete", session_name="old-feature")</code></pre>
+
+            <h4>Best Practices</h4>
+            <ul>
+                <li>Use descriptive session names: <code>feature-X</code>, <code>fix-Y</code>, <code>refactor-Z</code></li>
+                <li>Start a session before making changes to isolate work</li>
+                <li>Use auto-merge only for well-tested changes</li>
+                <li>Check current session status regularly</li>
+            </ul>
+        </section>
+
+        <section id="tool-memory" class="content-section">
+            <h3>memory_tool</h3>
+            <p><strong>Purpose:</strong> Store and retrieve project knowledge across chat sessions</p>
+
+            <h4>Operations</h4>
+            <ul>
+                <li><code>store</code> - Store new memory</li>
+                <li><code>search</code> - Search memories semantically</li>
+                <li><code>context</code> - Get session startup context</li>
+                <li><code>list</code> - List memories by category</li>
+                <li><code>update</code> - Update existing memory</li>
+                <li><code>stats</code> - Get memory statistics</li>
+            </ul>
+
+            <h4>Memory Categories</h4>
+            <ul>
+                <li><code>progress</code> - Project milestones</li>
+                <li><code>learning</code> - Technical insights</li>
+                <li><code>preference</code> - User preferences</li>
+                <li><code>mistake</code> - Errors and corrections</li>
+                <li><code>solution</code> - Working solutions</li>
+                <li><code>architecture</code> - Design decisions</li>
+                <li><code>integration</code> - Component interactions</li>
+                <li><code>debug</code> - Debugging experiences</li>
+            </ul>
+
+            <h4>Importance Levels</h4>
+            <ul>
+                <li>5 (CRITICAL) - Must always remember</li>
+                <li>4 (HIGH) - Very important</li>
+                <li>3 (MEDIUM) - Standard importance</li>
+                <li>2 (LOW) - Nice to remember</li>
+                <li>1 (MINIMAL) - Archive level</li>
+            </ul>
+
+            <h4>Example Usage</h4>
+            <pre><code># Store a learning
+memory_tool(
+    operation="store",
+    category="learning",
+    content="Always validate email format before database queries",
+    importance=4
+)
+
+# Store a mistake
+memory_tool(
+    operation="store",
+    category="mistake",
+    content="MISTAKE: Used sync DB calls in async endpoint. CORRECTION: Use async DB session. PREVENTION: Always check if endpoint is async.",
+    importance=5
+)
+
+# Search memories
+memory_tool(
+    operation="search",
+    query="database optimization techniques",
+    max_results=5
+)
+
+# Get startup context
+memory_tool(operation="context")</code></pre>
+
+            <h4>Best Practices</h4>
+            <ul>
+                <li>Store memories immediately after learning</li>
+                <li>Use <code>context</code> at start of new sessions</li>
+                <li>Search before starting similar work</li>
+                <li>Always record mistakes with prevention strategies</li>
+                <li>Update importance as patterns prove useful</li>
+            </ul>
+        </section>
+
+        <section id="tool-write" class="content-section">
+            <h3>write_tool</h3>
+            <p><strong>Purpose:</strong> Write new code with automatic formatting, dependency checking, and quality analysis</p>
+
+            <h4>Features</h4>
+            <ul>
+                <li>Automatic code formatting (Black/Ruff for Python, Prettier for JS/TS)</li>
+                <li>Dependency conflict detection</li>
+                <li>Quality scoring (0-1 scale)</li>
+                <li>Auto-commit when quality ≥ 0.8</li>
+                <li>Language auto-detection</li>
+            </ul>
+
+            <h4>Parameters</h4>
+            <ul>
+                <li><code>file_path</code> - Path to write</li>
+                <li><code>content</code> - Code content</li>
+                <li><code>purpose</code> - What this code does</li>
+                <li><code>language</code> - python/javascript/typescript (auto-detected)</li>
+                <li><code>save_to_file</code> - Whether to save (default: True)</li>
+            </ul>
+
+            <h4>Example Usage</h4>
+            <pre><code># Write a new Python file
+write_tool(
+    file_path="api/routes/auth.py",
+    content='''
+from fastapi import APIRouter, Depends
+from pydantic import EmailStr
+
+router = APIRouter()
+
+@router.post("/login")
+async def login(email: EmailStr, password: str):
+    # Login logic here
+    return {"status": "success"}
+    ''',
+    purpose="User authentication endpoint"
+)</code></pre>
+
+            <h4>Quality Scoring</h4>
+            <p>The quality score is calculated based on:</p>
+            <ul>
+                <li>✅ Formatting success (0.3)</li>
+                <li>✅ No missing dependencies (0.3)</li>
+                <li>✅ No duplicate definitions (0.2)</li>
+                <li>✅ No syntax errors (0.2)</li>
+            </ul>
+            <p>Score ≥ 0.8 enables auto-commit</p>
+        </section>
+
+        <section id="tool-edit" class="content-section">
+            <h3>edit_tool</h3>
+            <p><strong>Purpose:</strong> AI-assisted code editing using Gemini API</p>
+
+            <div class="alert alert-info">
+                <strong>💡 Privacy Note:</strong> This tool sends only the target file to Gemini API (not the entire codebase). Editing techniques inspired by Cursor.
+            </div>
+
+            <h4>Features</h4>
+            <ul>
+                <li>Gemini 2.5 Flash-Lite powered editing</li>
+                <li>Intelligent diff generation</li>
+                <li>Automatic error correction</li>
+                <li>Rate limiting with exponential backoff</li>
+                <li>Quality validation after edit</li>
+            </ul>
+
+            <h4>Parameters</h4>
+            <ul>
+                <li><code>target_file</code> - File to edit</li>
+                <li><code>instructions</code> - What to change (single sentence)</li>
+                <li><code>code_edit</code> - Minimal edit specification</li>
+                <li><code>language</code> - Auto-detected if not provided</li>
+                <li><code>save_to_file</code> - Whether to save (default: True)</li>
+            </ul>
+
+            <h4>Example Usage</h4>
+            <pre><code># Edit existing file
+edit_file(
+    target_file="api/routes/auth.py",
+    instructions="Add rate limiting to login endpoint",
+    code_edit='''
+// ... existing code ...
+from slowapi import Limiter
+// ... existing code ...
+@router.post("/login")
+@limiter.limit("5/minute")
+async def login(email: EmailStr, password: str):
+// ... existing code ...
+    '''
+)</code></pre>
+
+            <h4>Best Practices</h4>
+            <ul>
+                <li>Use <code>// ... existing code ...</code> to skip unchanged sections</li>
+                <li>Provide clear, single-sentence instructions</li>
+                <li>Include enough context around edits</li>
+                <li>Don't specify entire file, only changed parts</li>
+            </ul>
+
+            <h4>Timeout Handling</h4>
+            <p>If editing takes >30 seconds, you'll receive a timeout message. This prevents Claude Desktop from timing out. Options:</p>
+            <ul>
+                <li>Wait 30-60 seconds and check if edit completed</li>
+                <li>Check for partial changes with git diff</li>
+                <li>Break complex edits into smaller parts</li>
+            </ul>
+        </section>
+
+        <section id="tool-search" class="content-section">
+            <h3>search_tool</h3>
+            <p><strong>Purpose:</strong> Multi-mode code search (semantic, fuzzy, text, symbol)</p>
+
+            <h4>Search Modes</h4>
+            <table>
+                <tr>
+                    <th>Mode</th>
+                    <th>Use Case</th>
+                    <th>Speed</th>
+                </tr>
+                <tr>
+                    <td><code>semantic</code></td>
+                    <td>Find code by meaning/intent</td>
+                    <td>Fast (&lt;1s)</td>
+                </tr>
+                <tr>
+                    <td><code>fuzzy_symbol</code></td>
+                    <td>Find functions/classes by approximate name</td>
+                    <td>Very Fast</td>
+                </tr>
+                <tr>
+                    <td><code>text</code></td>
+                    <td>Find exact text/regex patterns</td>
+                    <td>Fast</td>
+                </tr>
+                <tr>
+                    <td><code>symbol_exact</code></td>
+                    <td>Find symbols by exact name</td>
+                    <td>Very Fast</td>
+                </tr>
+            </table>
+
+            <h4>Example Usage</h4>
+            <pre><code># Semantic search
+search_tool(
+    query="functions that handle user authentication",
+    search_type="semantic",
+    max_results=10
+)
+
+# Fuzzy symbol search
+search_tool(
+    query="usr_auth",
+    search_type="fuzzy_symbol",
+    symbol_type="function"
+)
+
+# Text search with regex
+search_tool(
+    query="TODO:|FIXME:",
+    search_type="text",
+    use_regex=True,
+    file_pattern="*.py"
+)</code></pre>
+
+            <h4>Performance</h4>
+            <ul>
+                <li>Semantic search: &lt;1 second for typical codebase</li>
+                <li>Uses local AllMiniLM-L6-v2 embeddings</li>
+                <li>FAISS vector indexing</li>
+                <li>Memory footprint: ~100MB for medium projects</li>
+            </ul>
+        </section>
+
+        <!-- API Reference -->
+        <section id="api-overview" class="content-section">
+            <h2>API Reference</h2>
+            
+            <p>Codebase MCP FastAPI server provides 40+ REST endpoints for direct integration.</p>
+
+            <h3>Base URL</h3>
+            <p><code>http://localhost:6789</code></p>
+
+            <h3>API Categories</h3>
+            <ul>
+                <li><strong>Session Management:</strong> <code>/session/*</code></li>
+                <li><strong>Memory System:</strong> <code>/memory/*</code></li>
+                <li><strong>Git Operations:</strong> <code>/git/*</code></li>
+                <li><strong>File Operations:</strong> <code>/file/*</code>, <code>/write</code>, <code>/edit</code></li>
+                <li><strong>Search:</strong> <code>/search/*</code></li>
+                <li><strong>Project Analysis:</strong> <code>/project/*</code></li>
+                <li><strong>Health & Monitoring:</strong> <code>/health</code>, <code>/logs</code></li>
+            </ul>
+
+            <h3>Authentication</h3>
+            <p>Currently, the API runs locally without authentication. Future versions may add API key authentication for remote access.</p>
+
+            <h3>Example API Calls</h3>
+
+            <h4>Health Check</h4>
+            <pre><code>curl http://localhost:6789/health</code></pre>
+
+            <h4>Search Code</h4>
+            <pre><code>curl -X POST http://localhost:6789/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "user authentication",
+    "search_type": "semantic",
+    "max_results": 5
+  }'</code></pre>
+
+            <h4>Write File</h4>
+            <pre><code>curl -X POST http://localhost:6789/write \
+  -H "Content-Type: application/json" \
+  -d '{
+    "file_path": "test.py",
+    "content": "print(\"Hello World\")",
+    "purpose": "Test file"
+  }'</code></pre>
+        </section>
+
+        <section id="api-endpoints" class="content-section">
+            <h3>Key Endpoints</h3>
+
+            <h4>Session Endpoints</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Endpoint</th>
+                        <th>Method</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>/session</code></td>
+                        <td>POST</td>
+                        <td>Create/manage sessions</td>
+                    </tr>
+                    <tr>
+                        <td><code>/session/current</code></td>
+                        <td>GET</td>
+                        <td>Get current session status</td>
+                    </tr>
+                    <tr>
+                        <td><code>/session/auto-commit</code></td>
+                        <td>POST</td>
+                        <td>Auto-commit changes</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Memory Endpoints</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Endpoint</th>
+                        <th>Method</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>/memory/store</code></td>
+                        <td>POST</td>
+                        <td>Store new memory</td>
+                    </tr>
+                    <tr>
+                        <td><code>/memory/search</code></td>
+                        <td>POST</td>
+                        <td>Search memories</td>
+                    </tr>
+                    <tr>
+                        <td><code>/memory/context</code></td>
+                        <td>GET</td>
+                        <td>Get startup context</td>
+                    </tr>
+                    <tr>
+                        <td><code>/memory/stats</code></td>
+                        <td>GET</td>
+                        <td>Get statistics</td>
+                    </tr>
+                    <tr>
+                        <td><code>/memory/{id}</code></td>
+                        <td>PUT</td>
+                        <td>Update memory</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Search Endpoints</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Endpoint</th>
+                        <th>Method</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>/search</code></td>
+                        <td>POST</td>
+                        <td>Semantic search</td>
+                    </tr>
+                    <tr>
+                        <td><code>/search/text</code></td>
+                        <td>POST</td>
+                        <td>Text/regex search</td>
+                    </tr>
+                    <tr>
+                        <td><code>/search/symbols</code></td>
+                        <td>POST</td>
+                        <td>Symbol search</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Architecture -->
+        <section id="architecture" class="content-section">
+            <h2>Architecture</h2>
+            
+            <h3>System Overview</h3>
+            <p>Codebase MCP uses a three-tier architecture designed for performance and separation of concerns:</p>
+
+            <pre><code>┌─────────────────────┐
+│  Claude Desktop     │ (MCP Client)
+│  (or any MCP LLM)   │
+└──────────┬──────────┘
+           │ MCP Protocol
+           ↓
+┌─────────────────────┐
+│   MCP Server        │ (Lightweight Proxy)
+│   (mcp_server.py)   │  
+└──────────┬──────────┘
+           │ HTTP/REST
+           ↓
+┌─────────────────────┐
+│   FastAPI Server    │ (Processing Engine)
+│   (main.py)         │
+│                     │
+│  ┌───────────────┐  │
+│  │ API Routers   │  │ → 40+ endpoints
+│  ├───────────────┤  │
+│  │ Code Tools    │  │ → Write, Edit, Format
+│  ├───────────────┤  │
+│  │ Semantic      │  │ → FAISS + Embeddings
+│  │ Search        │  │
+│  ├───────────────┤  │
+│  │ Memory System │  │ → SQLite + Vectors
+│  ├───────────────┤  │
+│  │ Git Manager   │  │ → .codebase/ tracking
+│  └───────────────┘  │
+└─────────────────────┘</code></pre>
+
+            <h3>Component Breakdown</h3>
+
+            <h4>1. MCP Server (Proxy Layer)</h4>
+            <ul>
+                <li>Lightweight HTTP client</li>
+                <li>Converts MCP tool calls to FastAPI requests</li>
+                <li>Handles error formatting for LLM consumption</li>
+                <li>Keeps Claude Desktop responsive</li>
+                <li>~3,000 lines of Python</li>
+            </ul>
+
+            <h4>2. FastAPI Server (Processing Engine)</h4>
+            <ul>
+                <li>40+ REST API endpoints</li>
+                <li>Async request handling</li>
+                <li>Modular router architecture</li>
+                <li>Comprehensive error handling</li>
+                <li>Real-time logging</li>
+            </ul>
+
+            <h4>3. Code Tools</h4>
+            <ul>
+                <li><strong>Write Pipeline:</strong> Format → Dependency Check → Quality Score</li>
+                <li><strong>Edit Pipeline:</strong> Gemini API → Error Correction → Format</li>
+                <li><strong>Git Manager:</strong> Dual directory (.git + .codebase)</li>
+                <li><strong>Formatter:</strong> Black, Ruff (Python) / Prettier (JS/TS)</li>
+                <li><strong>Dependency Checker:</strong> AST parsing, conflict detection</li>
+            </ul>
+
+            <h4>4. Semantic Search Engine</h4>
+            <ul>
+                <li><strong>Embeddings:</strong> Local AllMiniLM-L6-v2 model</li>
+                <li><strong>Vector Store:</strong> FAISS indexing</li>
+                <li><strong>Metadata:</strong> SQLite database</li>
+                <li><strong>Chunking:</strong> AST-aware code splitting</li>
+                <li><strong>Performance:</strong> &lt;1s search for typical projects</li>
+            </ul>
+
+            <h4>5. Memory System</h4>
+            <ul>
+                <li><strong>Storage:</strong> SQLite + FAISS vectors</li>
+                <li><strong>Categories:</strong> 8 knowledge types</li>
+                <li><strong>Persistence:</strong> Survives restarts</li>
+                <li><strong>Search:</strong> Semantic retrieval</li>
+                <li><strong>Importance:</strong> 1-5 priority levels</li>
+            </ul>
+
+            <h3>Data Flow</h3>
+
+            <h4>Write Operation Flow</h4>
+            <pre><code>1. Claude: "Create auth endpoint"
+   ↓
+2. MCP Server: Convert to write_tool call
+   ↓
+3. FastAPI: POST /write
+   ↓
+4. Write Pipeline:
+   - Detect language
+   - Format code (Black/Ruff/Prettier)
+   - Check dependencies
+   - Calculate quality score
+   ↓
+5. Quality ≥ 0.8? Auto-commit to .codebase
+   ↓
+6. Return: Results + quality metrics
+   ↓
+7. Claude: Show success + details</code></pre>
+
+            <h4>Semantic Search Flow</h4>
+            <pre><code>1. Claude: "Find auth functions"
+   ↓
+2. MCP Server: search_tool(query="auth functions")
+   ↓
+3. FastAPI: POST /search
+   ↓
+4. Semantic Search Engine:
+   - Generate query embedding
+   - FAISS vector search
+   - Retrieve top K results
+   - Enrich with metadata
+   ↓
+5. Return: Ranked results with context
+   ↓
+6. Claude: Format and present to user</code></pre>
+
+            <h3>Storage Structure</h3>
+
+            <h4>Project Directory</h4>
+            <pre><code>your-project/
+├── .git/              # Your personal git repo
+├── .codebase/         # AI-tracked changes
+│   ├── HEAD
+│   ├── objects/
+│   └── refs/
+├── .data/             # Codebase MCP data
+│   ├── metadata.db    # SQLite: symbols, files
+│   └── vectors.faiss  # FAISS: embeddings
+├── src/               # Your source code
+└── ...</code></pre>
+
+            <h4>Why Separate .codebase/?</h4>
+            <ul>
+                <li>✅ Clean separation of AI vs human changes</li>
+                <li>✅ Prevents accidental commits of AI experiments</li>
+                <li>✅ Easy rollback of AI-generated code</li>
+                <li>✅ You maintain full control of .git</li>
+                <li>✅ Transparent tracking of AI contributions</li>
+            </ul>
+
+            <h3>Performance Characteristics</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Operation</th>
+                        <th>Typical Time</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Semantic Search</td>
+                        <td>&lt;1 second</td>
+                        <td>For &lt;20K lines</td>
+                    </tr>
+                    <tr>
+                        <td>Write Tool</td>
+                        <td>1-3 seconds</td>
+                        <td>Includes formatting</td>
+                    </tr>
+                    <tr>
+                        <td>Edit Tool</td>
+                        <td>5-15 seconds</td>
+                        <td>Gemini API call</td>
+                    </tr>
+                    <tr>
+                        <td>Memory Search</td>
+                        <td>&lt;0.5 seconds</td>
+                        <td>Fast vector lookup</td>
+                    </tr>
+                    <tr>
+                        <td>Initial Indexing</td>
+                        <td>~30 seconds</td>
+                        <td>For 10K lines</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Scalability</h3>
+            <ul>
+                <li><strong>Optimal:</strong> Projects under 20,000 lines</li>
+                <li><strong>Storage:</strong> ~100MB for medium project (embeddings + metadata)</li>
+                <li><strong>Memory:</strong> ~500MB RAM during operation</li>
+                <li><strong>Indexing:</strong> Linear scaling with codebase size</li>
+            </ul>
+        </section>
+
+        <!-- Prompt Engineering -->
+        <section id="prompt-engineering" class="content-section">
+            <h2>Prompt Engineering</h2>
+            
+            <p>Codebase MCP includes an optimized system prompt for development workflows. The prompt is exposed as an MCP prompt accessible to Claude.</p>
+
+            <h3>System Prompt Philosophy</h3>
+            <p>The system prompt configures Claude as an <strong>"Elite Solo Software Developer"</strong> with complete autonomy over standard development tasks. Key principles:</p>
+
+            <ul>
+                <li>🎯 <strong>Autonomous Execution</strong> - Make decisions without asking for permission on standard tasks</li>
+                <li>📚 <strong>Context-Driven</strong> - Always gather context before acting (memory, git, codebase)</li>
+                <li>🏗️ <strong>Architecture-First</strong> - Plan before building, following SOLID principles</li>
+                <li>✅ <strong>Quality-Obsessed</strong> - Production-ready code on first attempt</li>
+                <li>🔄 <strong>Memory-Driven</strong> - Learn from mistakes, never repeat them</li>
+            </ul>
+
+            <h3>Workflow Loop</h3>
+            <p>The prompt enforces a 5-phase workflow:</p>
+            <pre><code>GATHER → PLAN → BUILD → VERIFY → FINALIZE</code></pre>
+
+            <h4>Phase 1: GATHER Intelligence</h4>
+            <ul>
+                <li>Load project memory (<code>memory_tool operation="context"</code>)</li>
+                <li>Check git status (<code>git_tool operation="status"</code>)</li>
+                <li>Search for related code (<code>search_tool</code>)</li>
+                <li>Review past mistakes to avoid repetition</li>
+            </ul>
+
+            <h4>Phase 2: PLAN Architecture</h4>
+            <ul>
+                <li>Design data flow: Request → Controller → Service → Repository</li>
+                <li>Define DTOs for type-safe boundaries</li>
+                <li>Consider scaling (10x, 100x traffic)</li>
+                <li>Plan error handling and validation</li>
+                <li>Start development session (<code>session_tool operation="start"</code>)</li>
+            </ul>
+
+            <h4>Phase 3: BUILD Systematically</h4>
+            <ul>
+                <li>Write production-quality code with types</li>
+                <li>Follow project patterns and conventions</li>
+                <li>Use <code>write_tool</code> for new files</li>
+                <li>Use <code>edit_tool</code> for modifications</li>
+                <li>Add comprehensive error handling</li>
+            </ul>
+
+            <h4>Phase 4: VERIFY Rigorously</h4>
+            <ul>
+                <li>Quality score must be ≥ 0.8</li>
+                <li>All dependencies resolved</li>
+                <li>Type safety complete</li>
+                <li>Error handling present</li>
+                <li>Tests pass (if test suite exists)</li>
+            </ul>
+
+            <h4>Phase 5: FINALIZE & Learn</h4>
+            <ul>
+                <li>Commit work (auto-commit if quality ≥ 0.8)</li>
+                <li>Store learnings in memory</li>
+                <li>Record mistakes with prevention strategies</li>
+                <li>Provide clear summary of changes</li>
+            </ul>
+
+            <h3>Effective Prompts</h3>
+
+            <h4>✅ Good Prompts (Action-Oriented)</h4>
+            <pre><code># Clear goal, let Claude handle details
+"Create a user authentication system with JWT tokens"
+
+# Specific but not micromanaging
+"Add rate limiting to the login endpoint using SlowAPI"
+
+# Leverages context
+"Refactor the database queries to use async properly"
+
+# Trusts autonomy
+"Fix the bugs in the payment processing module"</code></pre>
+
+            <h4>❌ Avoid (Too Prescriptive)</h4>
+            <pre><code># Don't micromanage implementation
+"First read auth.py lines 10-50, then search for JWT, 
+then write a new function called validate_token_v2..."
+
+# Don't ask for permission on standard tasks
+"Can you please maybe consider possibly adding 
+some error handling if that's okay?"
+
+# Don't specify tool usage
+"Use the write_tool to create a file and then 
+use the git_tool to commit it..."</code></pre>
+
+            <h3>Domain-Specific Tips</h3>
+
+            <h4>Backend Development (FastAPI/Python)</h4>
+            <ul>
+                <li>"Create a REST API endpoint for [feature]"</li>
+                <li>"Add Pydantic validation to [model]"</li>
+                <li>"Implement repository pattern for [entity]"</li>
+                <li>"Add async database operations to [service]"</li>
+            </ul>
+
+            <h4>Frontend Development (React/TypeScript)</h4>
+            <ul>
+                <li>"Build a React component for [feature] with TypeScript"</li>
+                <li>"Add form validation using React Hook Form"</li>
+                <li>"Create a custom hook for [functionality]"</li>
+                <li>"Implement responsive design for [component]"</li>
+            </ul>
+
+            <h4>Refactoring</h4>
+            <ul>
+                <li>"Refactor [file] to follow SOLID principles"</li>
+                <li>"Extract reusable logic from [component]"</li>
+                <li>"Improve type safety in [module]"</li>
+                <li>"Add error boundaries to [components]"</li>
+            </ul>
+
+            <h4>Debugging</h4>
+            <ul>
+                <li>"Fix the [specific error] in [module]"</li>
+                <li>"Debug why [feature] isn't working correctly"</li>
+                <li>"Investigate performance issues in [component]"</li>
+            </ul>
+
+            <h3>Accessing the System Prompt</h3>
+            <p>The system prompt is available as an MCP prompt:</p>
+            <pre><code># In Claude, use the prompt
+@system-prompt
+
+# Or ask Claude to use it
+"Use the system prompt to guide your development approach"</code></pre>
+        </section>
+
+        <!-- Best Practices -->
+        <section id="best-practices" class="content-section">
+            <h2>Best Practices</h2>
+
+            <h3>Session Management</h3>
+            <ul>
+                <li>✅ Start a session before making changes</li>
+                <li>✅ Use descriptive session names: <code>feature-X</code>, <code>fix-Y</code></li>
+                <li>✅ Keep sessions focused on one logical unit of work</li>
+                <li>✅ Check session status regularly</li>
+                <li>❌ Don't leave sessions open indefinitely</li>
+                <li>❌ Don't mix unrelated changes in one session</li>
+            </ul>
+
+            <h3>Memory System</h3>
+            <ul>
+                <li>✅ Load context at the start of new chat sessions</li>
+                <li>✅ Store learnings immediately after discovering them</li>
+                <li>✅ Always record mistakes with prevention strategies</li>
+                <li>✅ Search memories before starting similar work</li>
+                <li>✅ Update importance levels as patterns prove useful</li>
+                <li>❌ Don't store trivial information (importance 1-2)</li>
+                <li>❌ Don't forget to use <code>operation="context"</code> in new sessions</li>
+            </ul>
+
+            <h3>Code Quality</h3>
+            <ul>
+                <li>✅ Let quality score guide whether to commit (≥ 0.8)</li>
+                <li>✅ Fix formatting/dependency issues before proceeding</li>
+                <li>✅ Add types everywhere (no <code>any</code> in TypeScript)</li>
+                <li>✅ Include error handling in all new code</li>
+                <li>✅ Write descriptive commit messages</li>
+                <li>❌ Don't ignore quality warnings</li>
+                <li>❌ Don't skip dependency checking</li>
+            </ul>
+
+            <h3>Search & Discovery</h3>
+            <ul>
+                <li>✅ Use semantic search for conceptual queries</li>
+                <li>✅ Use fuzzy symbol search for approximate names</li>
+                <li>✅ Use text search for exact patterns/TODOs</li>
+                <li>✅ Limit results to relevant files with <code>file_pattern</code></li>
+                <li>❌ Don't search without purpose</li>
+                <li>❌ Don't ignore search results before writing similar code</li>
+            </ul>
+
+            <h3>AI-Assisted Editing</h3>
+            <ul>
+                <li>✅ Read file first to understand context</li>
+                <li>✅ Use clear, single-sentence instructions</li>
+                <li>✅ Mark unchanged code with <code>// ... existing code ...</code></li>
+                <li>✅ Break complex edits into smaller parts</li>
+                <li>✅ Include context around edited sections</li>
+                <li>❌ Don't specify the entire file content</li>
+                <li>❌ Don't make multiple unrelated edits at once</li>
+                <li>❌ Don't omit existing code markers</li>
+            </ul>
+
+            <h3>Project Organization</h3>
+            <ul>
+                <li>✅ Keep projects under 20,000 lines for optimal performance</li>
+                <li>✅ Use meaningful file and directory names</li>
+                <li>✅ Follow consistent code organization patterns</li>
+                <li>✅ Separate concerns (API, business logic, data)</li>
+                <li>❌ Don't mix Python and JavaScript in same directory</li>
+                <li>❌ Don't create deeply nested structures</li>
+            </ul>
+
+            <h3>Performance Tips</h3>
+            <ul>
+                <li>✅ Reindex periodically if codebase changes significantly</li>
+                <li>✅ Use <code>file_pattern</code> to limit search scope</li>
+                <li>✅ Keep semantic search queries focused</li>
+                <li>✅ Monitor .data/ directory size</li>
+                <li>❌ Don't index generated/node_modules folders</li>
+                <li>❌ Don't run edit_tool on very large files</li>
+            </ul>
+        </section>
+
+        <!-- Examples -->
+        <section id="examples" class="content-section">
+            <h2>Examples</h2>
+
+            <h3>Example 1: Create New Feature</h3>
+            <h4>Scenario: Building User Authentication</h4>
+            <pre><code># 1. Start session
+"Start a development session for user authentication feature"
+
+# 2. Search for existing patterns
+"Find all authentication-related code in the codebase"
+
+# 3. Create backend endpoint
+"Create a FastAPI endpoint for user login with email/password validation"
+
+# 4. Create frontend component
+"Create a React login form component with TypeScript and form validation"
+
+# 5. Test and commit
+"Check the current session status and show me what's been changed"
+
+# 6. Store learning
+"Store this learning: User auth requires rate limiting on login attempts"
+
+# 7. End session
+"End the session and merge changes to main"</code></pre>
+
+            <h3>Example 2: Debug Existing Code</h3>
+            <h4>Scenario: Fixing Async Database Bug</h4>
+            <pre><code># 1. Search for problem area
+"Find all database query functions in the user service"
+
+# 2. Analyze the issue
+"Read the get_user_by_email function from user_service.py"
+
+# 3. Fix the bug
+"Edit user_service.py to make the database queries properly async"
+
+# 4. Store mistake
+"Store this mistake: Used sync DB calls in async endpoint. 
+Always use AsyncSession for database operations."
+
+# 5. Verify fix
+"Show git diff for user_service.py"</code></pre>
+
+            <h3>Example 3: Refactor Code</h3>
+            <h4>Scenario: Extract Reusable Validation Logic</h4>
+            <pre><code># 1. Find duplicate code
+"Search for email validation logic across the codebase"
+
+# 2. Plan refactoring
+"I want to extract email validation into a reusable utility. 
+Search for existing validation utilities."
+
+# 3. Create utility
+"Create a validation utility module with email, phone, 
+and password validation functions"
+
+# 4. Update existing code
+"Update the user registration endpoint to use the new 
+validation utility"
+
+# 5. Store solution
+"Store this solution: Centralized validation utilities 
+prevent code duplication and ensure consistency"</code></pre>
+
+            <h3>Example 4: Add Feature to Existing File</h3>
+            <h4>Scenario: Adding Rate Limiting</h4>
+            <pre><code># 1. Read current implementation
+"Show me the login endpoint in auth_routes.py"
+
+# 2. Edit with AI assistance
+"Edit auth_routes.py to add rate limiting using SlowAPI. 
+Limit login attempts to 5 per minute per IP address."
+
+# 3. Check quality
+"Show me the quality score and any warnings for auth_routes.py"
+
+# 4. Commit if good
+"If quality is above 0.8, commit the changes"</code></pre>
+
+            <h3>Example 5: Start New Project</h3>
+            <h4>Scenario: Create FastAPI Boilerplate</h4>
+            <pre><code># 1. Create project structure
+"Create a FastAPI project structure with:
+- main.py (entry point)
+- api/routes/ (routers)
+- services/ (business logic)
+- models/ (Pydantic models)
+- config.py (configuration)
+Include proper async patterns and dependency injection"
+
+# 2. Store architecture decision
+"Store this architecture: Using Clean Architecture with 
+FastAPI - separate routers, services, and data layers 
+for maintainability"
+
+# 3. Create initial endpoint
+"Create a health check endpoint at /health"
+
+# 4. Set up session tracking
+"Start a session called 'project-init' for this work"</code></pre>
+
+            <h3>Example 6: Complex Multi-Step Task</h3>
+            <h4>Scenario: Add Payment Processing</h4>
+            <pre><code># 1. Start session
+"Start a session for payment-processing feature"
+
+# 2. Load context
+"Load memory context about payment requirements"
+
+# 3. Search existing integrations
+"Search for any existing payment or API integration code"
+
+# 4. Create service layer
+"Create a payment service that integrates with Stripe:
+- Initialize Stripe client
+- Create payment intent
+- Confirm payment
+- Handle webhooks
+Include proper error handling and logging"
+
+# 5. Create API endpoints
+"Create FastAPI endpoints for:
+- POST /payments/create (create payment intent)
+- POST /payments/confirm (confirm payment)
+- POST /webhooks/stripe (handle Stripe webhooks)
+Include Pydantic models and proper status codes"
+
+# 6. Add frontend
+"Create a React payment form component that:
+- Collects card details
+- Calls the payment API
+- Shows loading and error states
+- Handles success/failure"
+
+# 7. Store learnings
+"Store these learnings:
+1. Always validate Stripe webhook signatures
+2. Use idempotency keys for payment retries
+3. Log all payment events for audit"
+
+# 8. Review and commit
+"Show session status and commit high-quality changes"</code></pre>
+        </section>
+
+        <!-- Troubleshooting -->
+        <section id="troubleshooting" class="content-section">
+            <h2>Troubleshooting</h2>
+
+            <h3>Common Issues</h3>
+
+            <h4>Issue: MCP Server Not Loading in Claude Desktop</h4>
+            <p><strong>Symptoms:</strong> Tools don't appear in Claude Desktop after restart</p>
+            <p><strong>Solutions:</strong></p>
+            <ul>
+                <li>Verify <code>claude_desktop_config.json</code> paths are absolute</li>
+                <li>Check Python path points to virtual environment python.exe</li>
+                <li>Ensure <code>mcp_server.py</code> path is correct</li>
+                <li>Try restarting Claude Desktop completely (quit from system tray)</li>
+                <li>Check Claude Desktop logs for errors</li>
+            </ul>
+
+            <h4>Issue: FastAPI Server Won't Start</h4>
+            <p><strong>Symptoms:</strong> Error when running <code>python main.py</code></p>
+            <p><strong>Solutions:</strong></p>
+            <ul>
+                <li>Ensure virtual environment is activated</li>
+                <li>Verify all dependencies installed: <code>pip install -r requirements.txt</code></li>
+                <li>Check if port 6789 is already in use</li>
+                <li>Try a different port: <code>python main.py /path/to/project --port 8000</code></li>
+                <li>Check Python version: <code>python --version</code> (need 3.11+)</li>
+            </ul>
+
+            <h4>Issue: Gemini API Errors</h4>
+            <p><strong>Symptoms:</strong> Edit tool fails with API errors</p>
+            <p><strong>Solutions:</strong></p>
+            <ul>
+                <li>Verify <code>GEMINI_API_KEY</code> in .env file</li>
+                <li>Check API key is valid at <a href="https://aistudio.google.com" target="_blank">Google AI Studio</a></li>
+                <li>Verify rate limits not exceeded (15 RPM, 250K TPM, 1K RPD)</li>
+                <li>Wait if rate limited (tool has exponential backoff)</li>
+                <li>For persistent issues, replace with local LLM</li>
+            </ul>
+
+            <h4>Issue: Edit Tool Times Out</h4>
+            <p><strong>Symptoms:</strong> Edit operations take >30 seconds</p>
+            <p><strong>Solutions:</strong></p>
+            <ul>
+                <li>Wait 30-60 seconds and check if edit completed</li>
+                <li>Check git diff to see partial changes</li>
+                <li>Break large edits into smaller chunks</li>
+                <li>Edit smaller files (&lt;500 lines)</li>
+                <li>Use write_tool instead for major rewrites</li>
+            </ul>
+
+            <h4>Issue: Semantic Search Returns No Results</h4>
+            <p><strong>Symptoms:</strong> Search finds nothing despite code existing</p>
+            <p><strong>Solutions:</strong></p>
+            <ul>
+                <li>Check if .data/ directory exists and has files</li>
+                <li>Reindex the codebase (restart FastAPI server)</li>
+                <li>Verify file patterns in .gitignore don't exclude code</li>
+                <li>Try different search query phrasing</li>
+                <li>Use text search instead of semantic for exact matches</li>
+            </ul>
+
+            <h4>Issue: Quality Score Always Low</h4>
+            <p><strong>Symptoms:</strong> Write tool reports quality &lt; 0.8</p>
+            <p><strong>Solutions:</strong></p>
+            <ul>
+                <li>Check formatting errors (Black/Ruff for Python)</li>
+                <li>Ensure all imports are available</li>
+                <li>Fix syntax errors</li>
+                <li>Remove duplicate definitions</li>
+                <li>Add missing dependencies to project</li>
+            </ul>
+
+            <h4>Issue: Session Branch Conflicts</h4>
+            <p><strong>Symptoms:</strong> Can't switch or merge session branches</p>
+            <p><strong>Solutions:</strong></p>
+            <ul>
+                <li>Check uncommitted changes: <code>git_tool operation="status"</code></li>
+                <li>Commit or stash changes before switching</li>
+                <li>Use <code>session_tool operation="list"</code> to see all sessions</li>
+                <li>Delete problematic session: <code>session_tool operation="delete"</code></li>
+                <li>Manually resolve conflicts in .codebase/ directory</li>
+            </ul>
+
+            <h4>Issue: Memory Not Persisting</h4>
+            <p><strong>Symptoms:</strong> Memories disappear after restart</p>
+            <p><strong>Solutions:</strong></p>
+            <ul>
+                <li>Check if .data/metadata.db exists and has data</li>
+                <li>Verify file permissions on .data/ directory</li>
+                <li>Ensure no errors when storing memories</li>
+                <li>Check SQLite database integrity</li>
+            </ul>
+
+            <h3>Performance Issues</h3>
+
+            <h4>Slow Semantic Search</h4>
+            <ul>
+                <li>Reduce max_results parameter</li>
+                <li>Use file_pattern to limit scope</li>
+                <li>Ensure project is under 20,000 lines</li>
+                <li>Check system RAM availability</li>
+            </ul>
+
+            <h4>High Memory Usage</h4>
+            <ul>
+                <li>Restart FastAPI server periodically</li>
+                <li>Reduce embedding model size (if customized)</li>
+                <li>Clear old memory entries</li>
+                <li>Limit concurrent operations</li>
+            </ul>
+
+            <h3>Getting Help</h3>
+            <ul>
+                <li>📖 Check <a href="https://github.com/danyQe/codebase-mcp">GitHub Issues</a></li>
+                <li>💬 Open a new issue with:
+                    <ul>
+                        <li>Operating system and Python version</li>
+                        <li>Full error message</li>
+                        <li>Steps to reproduce</li>
+                        <li>Relevant logs from FastAPI server</li>
+                    </ul>
+                </li>
+                <li>🐛 Include FastAPI server logs: <code>http://localhost:6789/logs</code></li>
+            </ul>
+        </section>
+
+        <!-- Contributing -->
+        <section id="contributing" class="content-section">
+            <h2>Contributing</h2>
+            
+            <p>Codebase MCP is open source and welcomes contributions! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.</p>
+
+            <h3>Ways to Contribute</h3>
+
+            <h4>🐛 Report Bugs</h4>
+            <ul>
+                <li>Check <a href="https://github.com/danyQe/codebase-mcp/issues">existing issues</a> first</li>
+                <li>Include Python version, OS, and full error messages</li>
+                <li>Provide steps to reproduce</li>
+                <li>Share relevant logs</li>
+            </ul>
+
+            <h4>💡 Suggest Features</h4>
+            <ul>
+                <li>Open an issue with [Feature Request] tag</li>
+                <li>Explain the use case and benefits</li>
+                <li>Discuss implementation approach</li>
+            </ul>
+
+            <h4>📝 Improve Documentation</h4>
+            <ul>
+                <li>Fix typos and unclear explanations</li>
+                <li>Add examples and tutorials</li>
+                <li>Translate documentation</li>
+                <li>Create video guides</li>
+            </ul>
+
+            <h4>🔧 Submit Code</h4>
+            <ul>
+                <li>Fork the repository</li>
+                <li>Create a feature branch</li>
+                <li>Write clean, well-documented code</li>
+                <li>Add tests if applicable</li>
+                <li>Submit pull request</li>
+            </ul>
+
+            <h3>Priority Areas</h3>
+            <p>We're especially interested in contributions for:</p>
+
+            <h4>1. Language Support</h4>
+            <ul>
+                <li>Add Java, Go, Rust chunkers</li>
+                <li>Improve JavaScript/TypeScript parsing</li>
+                <li>Add more formatter integrations</li>
+            </ul>
+
+            <h4>2. Local LLM Integration</h4>
+            <ul>
+                <li>Replace Gemini API with local models</li>
+                <li>Add LLM provider options</li>
+                <li>Optimize for CPU/GPU inference</li>
+            </ul>
+
+            <h4>3. Semantic Search Improvements</h4>
+            <ul>
+                <li>Better chunking algorithms</li>
+                <li>Improved embedding models</li>
+                <li>Faster indexing</li>
+                <li>Multi-language support</li>
+            </ul>
+
+            <h4>4. UI/UX Enhancements</h4>
+            <ul>
+                <li>Web dashboard improvements</li>
+                <li>Real-time progress indicators</li>
+                <li>Better visualizations</li>
+                <li>Mobile responsiveness</li>
+            </ul>
+
+            <h4>5. Testing & Quality</h4>
+            <ul>
+                <li>Increase test coverage</li>
+                <li>Add integration tests</li>
+                <li>Performance benchmarks</li>
+                <li>CI/CD improvements</li>
+            </ul>
+
+            <h3>Development Setup</h3>
+            <pre><code># Fork and clone
+git clone https://github.com/YOUR_USERNAME/codebase-mcp.git
+cd codebase-mcp
+
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+
+# Install dependencies + dev dependencies
+pip install -r requirements.txt
+pip install pytest pytest-asyncio black ruff mypy
+
+# Run tests
+pytest
+
+# Run linters
+black .
+ruff check .
+mypy .</code></pre>
+
+            <h3>Code Guidelines</h3>
+            <ul>
+                <li>Follow existing code style (Black formatting)</li>
+                <li>Add type hints to all functions</li>
+                <li>Write docstrings for public APIs</li>
+                <li>Keep functions focused and testable</li>
+                <li>Add comments for complex logic</li>
+                <li>Update documentation for new features</li>
+            </ul>
+
+            <h3>Pull Request Process</h3>
+            <ol>
+                <li>Create a descriptive branch name: <code>feature/add-java-support</code></li>
+                <li>Write clear commit messages</li>
+                <li>Ensure all tests pass</li>
+                <li>Update README/docs if needed</li>
+                <li>Submit PR with detailed description</li>
+                <li>Respond to review feedback</li>
+            </ol>
+
+            <h3>Code of Conduct</h3>
+            <p>We're committed to providing a welcoming and inclusive environment. Please be respectful and constructive in all interactions.</p>
+
+            <p>See <a href="https://github.com/danyQe/codebase-mcp/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a> for full guidelines.</p>
+        </section>
+
+        <section id="development-setup" class="content-section">
+            <h3>Development Setup</h3>
+            <p>Detailed development environment setup for contributors.</p>
+
+            <h4>Prerequisites</h4>
+            <ul>
+                <li>Python 3.11+</li>
+                <li>Git</li>
+                <li>Virtual environment tool (venv or uv)</li>
+            </ul>
+
+            <h4>Full Development Environment</h4>
+            <pre><code># Clone your fork
+git clone https://github.com/YOUR_USERNAME/codebase-mcp.git
+cd codebase-mcp
+
+# Add upstream remote
+git remote add upstream https://github.com/danyQe/codebase-mcp.git
+
+# Create and activate virtual environment
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+
+# Install all dependencies
+pip install -r requirements.txt
+
+# Install development tools
+pip install pytest pytest-asyncio pytest-cov black ruff mypy pre-commit
+
+# Install pre-commit hooks (optional)
+pre-commit install
+
+# Run full test suite
+pytest --cov=. --cov-report=html
+
+# Start dev server with auto-reload
+python main.py /path/to/test/project --reload</code></pre>
+
+            <h4>Running Tests</h4>
+            <pre><code># Run all tests
+pytest
+
+# Run specific test file
+pytest tests/test_write_tool.py
+
+# Run with coverage
+pytest --cov=. --cov-report=html
+
+# Run specific test
+pytest tests/test_write_tool.py::test_quality_score</code></pre>
+
+            <h4>Code Quality Checks</h4>
+            <pre><code># Format code
+black .
+
+# Check linting
+ruff check .
+
+# Type checking
+mypy .
+
+# Fix auto-fixable issues
+ruff check --fix .</code></pre>
+        </section>
+
+        <section id="roadmap" class="content-section">
+            <h3>Roadmap</h3>
+            
+            <p><strong>Current Version:</strong> v1.0.0-beta</p>
+
+            <h4>Near Term (v1.1.0)</h4>
+            <ul>
+                <li>🔧 Docker support for easier deployment</li>
+                <li>📚 More language support (Java, Go, Rust)</li>
+                <li>🎨 Web dashboard improvements</li>
+                <li>⚡ Performance optimizations</li>
+                <li>📖 Video tutorials and guides</li>
+            </ul>
+
+            <h4>Mid Term (v1.2.0 - v1.5.0)</h4>
+            <ul>
+                <li>🤖 Local LLM integration (Ollama, LLaMA)</li>
+                <li>🔍 Improved semantic search algorithms</li>
+                <li>🧪 Comprehensive test suite</li>
+                <li>📊 Analytics and insights dashboard</li>
+                <li>🔌 Plugin system for extensibility</li>
+            </ul>
+
+            <h4>Long Term (v2.0.0+)</h4>
+            <ul>
+                <li>☁️ Optional cloud sync for memory</li>
+                <li>👥 Team collaboration features</li>
+                <li>🏢 Enterprise support</li>
+                <li>🌐 Multi-LLM orchestration</li>
+                <li>📱 Mobile app support</li>
+            </ul>
+
+            <p>Want to contribute to the roadmap? <a href="https://github.com/danyQe/codebase-mcp/issues">Open an issue</a> or <a href="#contributing">join development</a>!</p>
+        </section>
+
+        <!-- Footer -->
+        <footer style="margin-top: 5rem; padding: 3rem 0; border-top: 1px solid var(--border); color: var(--text-secondary);">
+            <div style="text-align: center;">
+                <p><strong>Codebase MCP</strong> - Turn any LLM into your personal coding assistant</p>
+                <p style="margin-top: 1rem;">
+                    <a href="https://github.com/danyQe/codebase-mcp" style="margin: 0 1rem;">GitHub</a> |
+                    <a href="https://github.com/danyQe/codebase-mcp/issues" style="margin: 0 1rem;">Issues</a> |
+                    <a href="https://github.com/danyQe/codebase-mcp/blob/main/LICENSE" style="margin: 0 1rem;">License</a> |
+                    <a href="#contributing" style="margin: 0 1rem;">Contributing</a>
+                </p>
+                <p style="margin-top: 2rem; font-size: 0.875rem;">
+                    Made with ❤️ by <a href="https://github.com/danyQe">danyQe</a> | 
+                    Developed with Claude Sonnet 4 & 4.5 | 
+                    Edit tool inspired by Cursor
+                </p>
+                <p style="margin-top: 0.5rem; font-size: 0.875rem;">
+                    Licensed under Apache 2.0 | © 2025
+                </p>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        // Sidebar toggle for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Active link highlighting
+        const sections = document.querySelectorAll('.content-section');
+        const navLinks = document.querySelectorAll('.sidebar-nav a');
+
+        function highlightNavLink() {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (window.pageYOffset >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', highlightNavLink);
+        highlightNavLink(); // Initial call
+
+        // Close sidebar on link click (mobile)
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    document.getElementById('sidebar').classList.remove('open');
+                }
+            });
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+        });
+    </script>
+</body>
+</html>

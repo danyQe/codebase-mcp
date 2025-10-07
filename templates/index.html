@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codebase Manager - AI-Powered Development Dashboard</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#64748B',
+                        success: '#10B981',
+                        warning: '#F59E0B',
+                        error: '#EF4444',
+                        sidebar: '#1F2937',
+                        sidebarHover: '#374151'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Smooth transitions */
+        * {
+            transition-property: background-color, border-color, color, fill, stroke;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+        
+        /* Loading animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen overflow-hidden">
+    <!-- Main Application Container -->
+    <div id="app" class="flex h-screen">
+        <!-- Sidebar Container -->
+        <div id="sidebar-container"></div>
+        
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col overflow-hidden lg:ml-64">
+            <!-- Header Container -->
+            <div id="header-container"></div>
+            
+            <!-- Main Content -->
+            <main id="content-container" class="flex-1 overflow-auto p-6 fade-in">
+                <!-- Dynamic section content loaded here -->
+                <div class="text-center py-20">
+                    <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-primary mx-auto mb-4"></div>
+                    <p class="text-gray-600 text-lg">Loading dashboard...</p>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Modals Container -->
+    <div id="modals-container"></div>
+    
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+    
+    <!-- Global Loading Overlay -->
+    <div id="loading-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center">
+        <div class="bg-white rounded-lg p-8 shadow-2xl flex flex-col items-center space-y-4">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-primary"></div>
+            <span class="text-gray-700 font-medium text-lg">Processing...</span>
+        </div>
+    </div>
+    
+    <!-- ============================================================================ -->
+    <!-- CORE JAVASCRIPT - Load Order is Important! -->
+    <!-- ============================================================================ -->
+    
+    <!-- 1. Core Systems -->
+    <script src="/static/js/core/logger.js"></script>
+    <script src="/static/js/core/state.js"></script>
+    <script src="/static/js/core/events.js"></script>
+    <script src="/static/js/core/router.js"></script>
+    
+    <!-- 2. API Layer -->
+    <script src="/static/js/api/client.js"></script>
+    <script src="/static/js/api/routes.js"></script>
+    
+    <!-- 3. Utilities -->
+    <script src="/static/js/utils/format.js"></script>
+    <script src="/static/js/utils/storage.js"></script>
+    
+    <!-- 4. Components -->
+    <script src="/static/js/components/loader.js"></script>
+    <script src="/static/js/components/notifications.js"></script>
+    
+    <!-- 5. Application Initialization (Must be last!) -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

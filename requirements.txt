@@ -1,0 +1,17 @@
+mcp
+httpx
+fastapi
+uvicorn
+ruff
+black
+flake8
+requests
+pytest
+pytest-asyncio
+sentence-transformers
+faiss-cpu
+numpy
+pydantic
+psutil
+# Google Generative AI for edit functionality
+google-generativeai>=0.3.0
