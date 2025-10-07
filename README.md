@@ -1,6 +1,8 @@
 # Codebase MCP
 
-> **Turn Claude into Your Personal Coding Assistant - Privacy-First, Cost-Effective, Open Source**
+> **Privacy-first AI development assistant via MCP** | Turn Claude into your personal coding assistant | Semantic code search • AI-assisted editing • Quality-checked generation • Persistent memory | Free open-source alternative to Cursor & paid AI coding tools | Python, React, TypeScript, FastAPI
+
+Open Source**
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.11+-green.svg)](https://www.python.org/downloads/)
