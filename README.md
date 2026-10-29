@@ -98,7 +98,7 @@ python main.py /path/to/your/project
 
 **6. Use with Claude Desktop:**
 - Restart Claude Desktop
-- Start chatting - Claude now has access to 13+ MCP tools for codebase management!
+- Start chatting - Claude now has access to 16 MCP tools for codebase management!
 
 ---
 
@@ -130,7 +130,7 @@ python main.py /path/to/your/project
 
 ### 🎨 **Auto-Formatting**
 - **Python**: Black + Ruff (PEP 8 compliant)
-- **TypeScript/JavaScript**: Prettier + ESLint
+- **TypeScript/JavaScript**: Prettier (run through npx), plus a few simple lint-style warnings (no ESLint)
 - **Quality Scoring**: Automatic code quality assessment
 - **Error Recovery**: Intelligent retry with corrections
 
@@ -151,7 +151,7 @@ python main.py /path/to/your/project
          │ MCP Protocol (stdio)
          ↓
 ┌─────────────────┐
-│   MCP Server    │  13+ Tools (proxy layer)
+│   MCP Server    │  16 Tools (proxy layer)
 │  (mcp_server.py)│  Lightweight, fast
 └────────┬────────┘
          │ HTTP/REST
@@ -187,7 +187,7 @@ python main.py /path/to/your/project
 
 ## 🛠️ Available Tools
 
-Codebase MCP provides **13 specialized MCP tools** for comprehensive development automation:
+Codebase MCP provides **16 MCP tools** for comprehensive development automation:
 
 | Tool | Purpose | Key Features |
 |------|---------|--------------|
@@ -204,6 +204,9 @@ Codebase MCP provides **13 specialized MCP tools** for comprehensive development
 | `list_file_symbols_tool` | Symbol extraction | Functions, classes, interfaces |
 | `read_symbol_from_database` | DB symbol lookup | Fast indexed retrieval |
 | `project_structure_tool` | Project visualization | Enhanced tree with stats |
+| `file_tool` | Basic file operations (legacy) | Read and write by line range; `write_tool` is preferred for new code |
+| `execute_tool` | Run a command | Arguments, timeout and working directory |
+| `show_directory_tree` | Compact directory tree | Depth 1 to 5, tuned for LLM context |
 
 ---
 
